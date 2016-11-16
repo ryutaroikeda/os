@@ -14,4 +14,10 @@ bootsector0.img: bootsector hextobin
 	cat $< | ./bin/hextobin $@
 
 bootsector.img: bootsector.asm
-	nasm $< -f bin -o $@
+	nasm -f bin -o $@ $<
+
+hello.img: hello.asm
+	nasm -f bin -o $@ $<
+
+%.img: %.asm
+	nasm -f bin -o $@ $<
