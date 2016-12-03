@@ -28,7 +28,15 @@ disk_load:
 	disk_error:
 		mov bx, DISK_ERROR_MESSAGE
 		call print
+		mov bx, 0
+		mov bl, ah
+		call print_hex
+		mov bx, DISK_ERROR_NEW_LINE
+		call print
 		ret
 
 DISK_ERROR_MESSAGE:
-	db 'disk read error', 0
+	db 'disk read error: ', 0
+
+DISK_ERROR_NEW_LINE:
+	db 0xa, 0xd, 0

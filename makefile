@@ -21,3 +21,9 @@ hello.img: hello.asm
 
 %.img: %.asm
 	nasm -f bin -o $@ $<
+
+basic.o: basic.c
+	gcc -ffreestanding -c $< -o $@
+
+basic.bin: basic.o
+	ld -o $@ -Ttext 0x0 --oformat binary $<

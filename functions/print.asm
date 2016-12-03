@@ -1,5 +1,6 @@
 ; print string up to the null byte
 ; bx is the address of the start of string
+[bits 16]
 print:
 	pusha
 	mov ah, 0x0e
