@@ -1,4 +1,4 @@
-CFLAGS=-g -std=c++11 -lc++ -Wextra -Wall -pedantic -Werror -Wshadow \
+#CFLAGS=--Wextra -Wall -pedantic -Werror -Wshadow \
        -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes \
        -Wconversion
 
@@ -13,17 +13,20 @@ bin/hextobin: src/hextobin.cpp
 bootsector0.img: bootsector hextobin
 	cat $< | ./bin/hextobin $@
 
-bootsector.img: bootsector.asm
-	nasm -f bin -o $@ $<
-
-hello.img: hello.asm
-	nasm -f bin -o $@ $<
-
 %.img: %.asm
 	nasm -f bin -o $@ $<
 
-basic.o: basic.c
-	gcc -ffreestanding -c $< -o $@
+%.o: %.c
+	gcc -Wall -pedantic -m32 -march=i386 -nostartfiles -ffreestanding -c $< -o $@
 
-basic.bin: basic.o
-	ld -o $@ -Ttext 0x0 --oformat binary $<
+%.bin: %.o
+	ld -m elf_i386 --entry=my_function -o $@ -Ttext 0x0 --oformat binary $<
+
+%.dis: %.bin
+	ndisasm -b 32 $< > $@
+
+%.dump: %.o
+	objdump -m i386 -d $< > $@
+
+.PRECIOUS: %.o
+.PRECIOUS: %.bin
