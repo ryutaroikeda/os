@@ -9,14 +9,17 @@ mov bl, dl
 mov [BOOT_DRIVE], dl
 
 mov bx, [BOOT_DRIVE]
+;call print_hex
+;call new_line
 
 ; move the stack out of the way
 mov bp, 0x8000
 mov sp, bp
 
- ; read sectors
+; read sectors
 mov bx, 0x9000
-mov dh, 2 ; seems like we can only read two sectors
+; number of sectors to read
+mov dh, 1
 mov dl, [BOOT_DRIVE]
 call disk_load
 
@@ -55,3 +58,4 @@ dw 0xaa55
 ; additional two sectors from the disk we booted from.
 times 256 dw 0xdead
 times 256 dw 0xbeef
+;times 256 dw 0xface

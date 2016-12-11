@@ -1,4 +1,5 @@
 ; load dh sectors to es:bx from drive dl
+[bits 16]
 disk_load:
 	push dx
 
@@ -18,6 +19,7 @@ disk_load:
 	mov cl, 0x02
 
 	int 0x13
+	; dx won't be restored on this branch
 	jc disk_error
 
 	pop dx
@@ -35,8 +37,9 @@ disk_load:
 		call print
 		ret
 
+FIRST_DISK_ERROR_MESSAGE:
+	db 'failed to read anything from disk', 0xa, 0xd, 0
 DISK_ERROR_MESSAGE:
 	db 'disk read error: ', 0
-
 DISK_ERROR_NEW_LINE:
 	db 0xa, 0xd, 0

@@ -1,5 +1,6 @@
 ; this depends on functions/print.asm
 ; print bx as hex
+[bits 16]
 print_hex:
 	pusha
 

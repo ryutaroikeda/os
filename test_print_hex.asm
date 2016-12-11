@@ -2,6 +2,8 @@
 
 mov bx, 0xdead
 call print_hex
+mov bx, 0xbeef
+call print_hex
 
 jmp $
 

@@ -20,7 +20,7 @@ bootsector0.img: bootsector hextobin
 	gcc -Wall -pedantic -m32 -march=i386 -nostartfiles -ffreestanding -c $< -o $@
 
 %.bin: %.o
-	ld -m elf_i386 --entry=my_function -o $@ -Ttext 0x0 --oformat binary $<
+	ld -m elf_i386 -o $@ -Ttext 0x1000 --oformat binary $<
 
 %.dis: %.bin
 	ndisasm -b 32 $< > $@
@@ -28,5 +28,13 @@ bootsector0.img: bootsector hextobin
 %.dump: %.o
 	objdump -m i386 -d $< > $@
 
+os.img: boot_strap.img kernel.bin
+	cat $^ > $@
+	qemu-img resize -f raw $@ 1M
+
+boot: os.img
+	qemu-system-i386 -drive format=raw,file=$<
+
+.PHONY: boot
 .PRECIOUS: %.o
 .PRECIOUS: %.bin
