@@ -46,3 +46,4 @@ convert_hex_to_char:
 
 print_hex_result:
 	db '0x0000', 0
+

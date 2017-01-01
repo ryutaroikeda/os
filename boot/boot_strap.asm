@@ -39,12 +39,12 @@ BEGIN_PM:
 	call KERNEL_OFFSET
 	jmp $
 
-%include "functions/print.asm"
-%include "functions/print_hex.asm"
-%include "functions/disk_load.asm"
+%include "print.asm"
+%include "print_hex.asm"
+%include "disk_load.asm"
 %include "global_descriptor_table.asm"
 %include "protected_mode.asm"
-%include "functions/print_pm.asm"
+%include "print_pm.asm"
 
 BOOT_DRIVE:
 	db 0
@@ -61,5 +61,4 @@ test:
 
 times 510 - ($ - $$) db 0
 dw 0xaa55
-;times 256 dw 0xdead
-;times 256 dw 0xbeef
+

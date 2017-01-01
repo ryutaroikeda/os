@@ -28,3 +28,4 @@ init_protected_mode:
 	mov esp, ebp
 
 	call BEGIN_PM
+

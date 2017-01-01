@@ -43,3 +43,4 @@ DISK_ERROR_MESSAGE:
 	db 'disk read error: ', 0
 DISK_ERROR_NEW_LINE:
 	db 0xa, 0xd, 0
+
