@@ -53,7 +53,7 @@ MSG_REAL_MODE:
 MSG_PROTECTED_MODE:
 	db 'landed in 32 protected mode', 0
 MSG_LOAD_KERNEL:
-	db 'loading kernel in memory from drive ', 0
+	db 'loading kernel in memory from drive', 0
 NEW_LINE:
 	db 0xa, 0xd, 0
 test:

@@ -23,9 +23,10 @@ init_protected_mode:
 	mov fs, ax
 	mov gs, ax
 
-	; move the stack to the top of free space.
-	mov ebp, 0x90000
-	mov esp, ebp
+	; I don't know why this doesn't work
+	;; move the stack to the top of free space.
+	;;mov ebp, 0x90000
+	;;mov esp, ebp
 
 	call BEGIN_PM
 
