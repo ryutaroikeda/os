@@ -1,44 +1,23 @@
-enum Color {
-	BLACK = 0,
-	BLUE,
-	GREEN,
-	CYAN,
-	RED,
-	MAGENTA,
-	BROWN,
-	LIGHT_GRAY,
-	DARK_GRAY,
-	LIGHT_BLUE,
-	LIGHT_GREEN,
-	LIGHT_CYAN,
-	LIGHT_RED,
-	LIGHT_MAGENTA,
-	LIGHT_BROWN,
-	WHITE
-};
+#include "drivers/framebuffer.h"
+#include "drivers/serial.h"
 
-union attribute {
-	struct {
-		unsigned char foreground: 4;
-		unsigned char background: 4;
-	} attribute;
-	unsigned char bits;
-};
-
-char* const video_memory = (char*) 0xb8000;
-
-void framebuffer_write_cell(int, char, union attribute); 
 void main(void);
 
-void framebuffer_write_cell(int offset, char c, union attribute attribute) {
-	video_memory[offset * 2] = c;
-	video_memory[(offset * 2) + 1] = (char) attribute.bits;
-}
-
 void main(void) {
-	union attribute a;
-	a.attribute.foreground = BLUE;
-	a.attribute.background = WHITE;
-	framebuffer_write_cell(2, 'X', a);
+	framebuffer_clear_screen();
+	struct framebuffer_offset offset = {0, 0};
+	framebuffer_set_cursor(offset);
+    framebuffer_write("hello world!", 120);
+    framebuffer_write("hola mundo!", 120);
+
+    struct serial_line_configuration config = { 1, 0x3, 0, 0, 0 };
+    serial_configure_line(SERIAL_COM_1_BASE, config);
+
+    struct serial_buffer_configuration buffer_config = { 3, 0, 1, 1, 1 };
+    serial_configure_buffer(SERIAL_COM_1_BASE, buffer_config);
+
+    serial_write(SERIAL_COM_1_BASE, "really bad error!!!!! abort!!!", 100);
+
+    framebuffer_write("exitting", 100);
 }
 

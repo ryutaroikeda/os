@@ -5,3 +5,6 @@ bin
 *.dump
 *.dis
 tags
+log
+*.swp
+*.asmo
