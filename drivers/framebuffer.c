@@ -62,9 +62,9 @@ struct framebuffer_offset framebuffer_get_cursor(void) {
     return offset;
 }
 
-void framebuffer_write(const char* s, unsigned int len) {
+void framebuffer_write(const char* s, int len) {
     struct framebuffer_offset offset = framebuffer_get_cursor();
-    for (unsigned int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         if (!s[i]) {
             break;
         }

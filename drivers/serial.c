@@ -77,11 +77,11 @@ static bool transmission_buffer_is_empty(Port port) {
     return status & (1 << 5);
 }
 
-void serial_write(struct serial_port port, const char* s, unsigned int len) {
+void serial_write(struct serial_port port, const char* s, int len) {
     while (true) {
         if (transmission_buffer_is_empty(port.port)) { break; }
     }
-    for (unsigned int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         if (!s[i]) { break; }
         port_byte_out(DATA_REGISTER(port.port), (unsigned char) s[i]);
     }

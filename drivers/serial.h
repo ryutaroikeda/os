@@ -39,7 +39,7 @@ void serial_configure_line(struct serial_port,
 void serial_configure_buffer(struct serial_port,
         struct serial_buffer_configuration);
 
-void serial_write(struct serial_port, const char* s, unsigned int len);
+void serial_write(struct serial_port, const char* s, int len);
 
 #endif
 

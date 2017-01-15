@@ -13,14 +13,23 @@ void main(void) {
         SERIAL_COM_1_BASE,
         false
     };
-    struct printer printer = { PRINT_FRAMEBUFFER, port };
-    print0(printer, "hello world!\n");
-    print0(printer, "hola mundo!\n");
+    struct printer p;
+    p.target = PRINT_FRAMEBUFFER;
+    p.port = port;
+    struct printer* printer = &p;
 
-    printer.target = PRINT_SERIAL_COM_1;
-    print0(printer, "testing serial write with printer");
+    print_0(printer, "hello world!\n", 100);
+    print_0(printer, "hola mundo!\n", 100);
 
-    printer.target = PRINT_FRAMEBUFFER;
-    print0(printer, "exiting");
+    printer->target = PRINT_SERIAL_COM_1;
+    print_0(printer, "testing serial write\nwith printer", 100);
+
+    printer->target = PRINT_FRAMEBUFFER;
+    int a = 100;
+    struct print_argument args[] = {
+        { &a }
+    };
+    print_1(printer, "printing number: %d", args, 1);
+    print_0(printer, "exiting", 100);
 }
 
