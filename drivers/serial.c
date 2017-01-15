@@ -1,4 +1,5 @@
-#include "io.h"
+#include "kernel/bool.h"
+#include "port.h"
 #include "serial.h"
 
 #define DATA_REGISTER(base) (Port) (base)
@@ -28,13 +29,14 @@
  * @param divisor The baud rate is set to 115200 bits per second divided by
  * the divsor.
  */
-static void configure_baud_rate(Port port, unsigned short divisor) {
+static void configure_baud_rate(struct serial_port port,
+        unsigned short divisor) {
     unsigned char low = (unsigned char) (divisor & 0xff);
     unsigned char high = (unsigned char) ((divisor >> 8) & 0xff);
-    port_byte_out(LINE_CONTROL_REGISTER(port), LINE_ENABLE_DLAB);
-    port_byte_out(BAUD_LOW_REGISTER(port), low);
-    port_byte_out(BAUD_HIGH_REGISTER(port), high);
-    port_byte_out(LINE_CONTROL_REGISTER(port), 0x00);
+    port_byte_out(LINE_CONTROL_REGISTER(port.port), LINE_ENABLE_DLAB);
+    port_byte_out(BAUD_LOW_REGISTER(port.port), low);
+    port_byte_out(BAUD_HIGH_REGISTER(port.port), high);
+    port_byte_out(LINE_CONTROL_REGISTER(port.port), 0x00);
 }
 
 static unsigned char get_line_configuration_bits(
@@ -45,10 +47,10 @@ static unsigned char get_line_configuration_bits(
             ((config.parity & 0x07) << 3));
 }
 
-void serial_configure_line(Port port,
+void serial_configure_line(struct serial_port port,
         struct serial_line_configuration config) {
     configure_baud_rate(port, config.baud_rate_divisor);
-    port_byte_out(LINE_CONTROL_REGISTER(port),
+    port_byte_out(LINE_CONTROL_REGISTER(port.port),
             get_line_configuration_bits(config));
 }
 
@@ -62,9 +64,9 @@ static unsigned char get_buffer_configuration_bits(
             ((config.buffer_size & 0x03) << 6));
 }
 
-void serial_configure_buffer(Port port,
+void serial_configure_buffer(struct serial_port port,
         struct serial_buffer_configuration config) {
-    port_byte_out(FIFO_CONTROL_REGISTER(port),
+    port_byte_out(FIFO_CONTROL_REGISTER(port.port),
             get_buffer_configuration_bits(config));
 }
 
@@ -75,13 +77,13 @@ static bool transmission_buffer_is_empty(Port port) {
     return status & (1 << 5);
 }
 
-void serial_write(Port port, char* s, unsigned int len) {
+void serial_write(struct serial_port port, const char* s, unsigned int len) {
     while (true) {
-        if (transmission_buffer_is_empty(port)) { break; }
+        if (transmission_buffer_is_empty(port.port)) { break; }
     }
     for (unsigned int i = 0; i < len; i++) {
         if (!s[i]) { break; }
-        port_byte_out(DATA_REGISTER(port), (unsigned char) s[i]);
+        port_byte_out(DATA_REGISTER(port.port), (unsigned char) s[i]);
     }
 }
 

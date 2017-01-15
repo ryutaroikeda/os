@@ -1,5 +1,5 @@
 #include "framebuffer.h"
-#include "io.h"
+#include "port.h"
 
 enum {
     MAX_ROWS = 25,
@@ -62,7 +62,7 @@ struct framebuffer_offset framebuffer_get_cursor(void) {
     return offset;
 }
 
-void framebuffer_write(char* s, unsigned int len) {
+void framebuffer_write(const char* s, unsigned int len) {
     struct framebuffer_offset offset = framebuffer_get_cursor();
     for (unsigned int i = 0; i < len; i++) {
         if (!s[i]) {

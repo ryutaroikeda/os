@@ -32,7 +32,7 @@ struct framebuffer_offset {
 
 void framebuffer_clear_screen(void);
 
-void framebuffer_write(char*, unsigned int);
+void framebuffer_write(const char*, unsigned int);
 
 void framebuffer_set_cursor(struct framebuffer_offset);
 

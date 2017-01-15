@@ -2,13 +2,18 @@
 #define _serial_h_
 
 #include "kernel/bool.h"
-#include "io.h"
+#include "port.h"
 
 enum {
     SERIAL_COM_1_BASE = 0x3f8,
     SERIAL_COM_2_BASE = 0x2f8,
     SERIAL_COM_3_BASE = 0x3e8,
     SERIAL_COM_4_BASE = 0x2e8
+};
+
+struct serial_port {
+    Port port;
+    bool is_configured;
 };
 
 struct serial_line_configuration {
@@ -28,11 +33,13 @@ struct serial_buffer_configuration {
     bool enable_fifo;
 };
 
-void serial_configure_line(Port, struct serial_line_configuration);
+void serial_configure_line(struct serial_port,
+        struct serial_line_configuration);
 
-void serial_configure_buffer(Port, struct serial_buffer_configuration);
+void serial_configure_buffer(struct serial_port,
+        struct serial_buffer_configuration);
 
-void serial_write(Port, char* s, unsigned int len);
+void serial_write(struct serial_port, const char* s, unsigned int len);
 
 #endif
 

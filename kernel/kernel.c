@@ -1,5 +1,6 @@
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
+#include "print.h"
 
 void main(void);
 
@@ -7,17 +8,19 @@ void main(void) {
 	framebuffer_clear_screen();
 	struct framebuffer_offset offset = {0, 0};
 	framebuffer_set_cursor(offset);
-    framebuffer_write("hello world!", 120);
-    framebuffer_write("hola mundo!", 120);
 
-    struct serial_line_configuration config = { 1, 0x3, 0, 0, 0 };
-    serial_configure_line(SERIAL_COM_1_BASE, config);
+    struct serial_port port = {
+        SERIAL_COM_1_BASE,
+        false
+    };
+    struct printer printer = { PRINT_FRAMEBUFFER, port };
+    print0(printer, "hello world!\n");
+    print0(printer, "hola mundo!\n");
 
-    struct serial_buffer_configuration buffer_config = { 3, 0, 1, 1, 1 };
-    serial_configure_buffer(SERIAL_COM_1_BASE, buffer_config);
+    printer.target = PRINT_SERIAL_COM_1;
+    print0(printer, "testing serial write with printer");
 
-    serial_write(SERIAL_COM_1_BASE, "really bad error!!!!! abort!!!", 100);
-
-    framebuffer_write("exitting", 100);
+    printer.target = PRINT_FRAMEBUFFER;
+    print0(printer, "exiting");
 }
 

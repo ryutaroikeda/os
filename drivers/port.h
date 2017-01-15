@@ -1,5 +1,5 @@
-#ifndef _io_h_
-#define _io_h_
+#ifndef _port_h_
+#define _port_h_
 
 typedef unsigned short Port;
 
