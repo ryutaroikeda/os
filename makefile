@@ -13,7 +13,7 @@ ASM_OBJ = $(ASM_SOURCES:.asm=.asmo)
 
 boot: os.img
 	qemu-system-i386 -drive format=raw,file=$< \
-		-chardev file,id=mylog,path=log
+		-serial file:log
 
 os.img: boot_strap.img kernel.bin
 	cat $^ > $@
