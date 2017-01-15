@@ -25,11 +25,9 @@ void main(void) {
     print_0(printer, "testing serial write\nwith printer", 100);
 
     printer->target = PRINT_FRAMEBUFFER;
-    int a = 100;
-    struct print_argument args[] = {
-        { &a }
-    };
-    print_1(printer, "printing number: %d\n", args, 1);
+    print_1(printer, "printing number: %f%s\n",
+            (struct print_argument[]) {
+            {{.f=40.5}}, {{.s = "arg string"}}}, 2);
     print_0(printer, "exiting", 100);
 }
 

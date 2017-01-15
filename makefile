@@ -4,7 +4,8 @@ CFLAGS=-Wextra -Wall -pedantic -Werror -Wshadow \
        -Wconversion -fno-stack-protector \
 	   -m32 -march=i386 -ffreestanding \
 	   -fno-builtin \
-	   -I .
+	   -I . \
+	   -std=c99
 
 C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
 ASM_SOURCES = $(wildcard drivers/*.asm)

@@ -15,6 +15,7 @@ struct printer {
     struct serial_port port;
     char buffer[PRINT_BUFFER_SIZE];
     int buffer_offset;
+    int precision;
 };
 
 /*
@@ -31,7 +32,13 @@ enum print_type {
 
 struct print_argument {
     //enum print_type type;
-    void* value;
+    union {
+        int d;
+        float f;
+        char c;
+        bool b;
+        char* s;
+    } value;
 };
 
 int print_0(struct printer*, const char* format, int len);
