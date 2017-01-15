@@ -68,6 +68,11 @@ void framebuffer_write(const char* s, int len) {
         if (!s[i]) {
             break;
         }
+        if ('\n' == s[i]) {
+            offset.column = 0;
+            offset.row += 1;
+            continue;
+        }
         print_char(s[i], offset, WHITE_ON_BLACK);
         offset.column += 1;
         if (offset.column >= MAX_COLUMNS) {

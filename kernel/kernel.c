@@ -29,7 +29,7 @@ void main(void) {
     struct print_argument args[] = {
         { &a }
     };
-    print_1(printer, "printing number: %d", args, 1);
+    print_1(printer, "printing number: %d\n", args, 1);
     print_0(printer, "exiting", 100);
 }
 
