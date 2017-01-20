@@ -1,4 +1,5 @@
 #include "framebuffer.h"
+#include "kernel/memory.h"
 #include "port.h"
 
 enum {
@@ -81,5 +82,16 @@ void framebuffer_write(const char* s, int len) {
         }
     }
     framebuffer_set_cursor(offset);
+}
+
+void framebuffer_scroll(int rows) {
+    memory_copy(VIDEO_MEMORY + (MAX_COLUMNS * rows),
+            VIDEO_MEMORY, MAX_COLUMNS * (MAX_ROWS - rows));
+    struct framebuffer_offset cursor = framebuffer_get_cursor();
+    cursor.row -= rows;
+    if (cursor.row < 0) {
+        cursor.row = 0;
+    }
+    framebuffer_set_cursor(cursor);
 }
 

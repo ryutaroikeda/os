@@ -49,6 +49,9 @@ bin/hextobin: src/hextobin.cpp
 %.dump: %.o
 	objdump -m i386 -d $< > $@
 
+kernel.p:
+	$(CC) $(CFLAGS) -E kernel/kernel.c
+
 clean:
 	@rm -f *.bin *.dis *.img *.dump $(OBJ) $(ASM_OBJ)
 

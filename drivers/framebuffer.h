@@ -41,5 +41,7 @@ void framebuffer_set_cursor(struct framebuffer_offset);
  */
 struct framebuffer_offset framebuffer_get_cursor(void);
 
+void framebuffer_scroll(int row);
+
 #endif
 

@@ -18,16 +18,17 @@ void main(void) {
     p.port = port;
     struct printer* printer = &p;
 
-    print_0(printer, "hello world!\n", 100);
-    print_0(printer, "hola mundo!\n", 100);
+    print(printer, "hello world!\n");
+    print(printer, "hola mundo!\n");
 
     printer->target = PRINT_SERIAL_COM_1;
-    print_0(printer, "testing serial write\nwith printer", 100);
+    print(printer, "testing serial write\nwith printer");
 
     printer->target = PRINT_FRAMEBUFFER;
-    print_1(printer, "printing number: %f%s\n",
-            (struct print_argument[]) {
-            {{.f=40.5}}, {{.s = "arg string"}}}, 2);
-    print_0(printer, "exiting", 100);
+    print(printer, "printing string: %s\n", "arg string");
+    int test = 10;
+    print(printer, "printing number: %d\n", &test);
+    print(printer, "printing number %d and string %s\n", &test, "testing");
+    print(printer, "exiting");
 }
 

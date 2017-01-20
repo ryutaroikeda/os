@@ -18,33 +18,22 @@ struct printer {
     int precision;
 };
 
-/*
-enum print_type {
-    PRINT_INT,
-    PRINT_FLOAT,
-    PRINT_BOOL,
-    PRINT_CHAR,
-    PRINT_STRING,
-    PRINT_HEX,
-    PRINT_BINARY
-};
-*/
-
 struct print_argument {
-    //enum print_type type;
-    union {
-        int d;
-        float f;
-        char c;
-        bool b;
-        char* s;
-    } value;
+    const void* value;
 };
 
-int print_0(struct printer*, const char* format, int len);
-
-int print_1(struct printer*, const char* format, struct print_argument*,
+int print_n(struct printer*, const char* format, const struct print_argument*,
         int arg_len);
+
+int print_0(struct printer*, const char* format);
+int print_1(struct printer*, const char* format, const void*);
+int print_2(struct printer*, const char* format, const void*, const void*);
+
+#define GET_MACRO(_0, _1, _2, NAME, ...) NAME
+
+#define print(printer, ...) \
+    GET_MACRO(__VA_ARGS__, print_2, print_1, print_0, print_) \
+    (printer, __VA_ARGS__)
 
 #endif
 

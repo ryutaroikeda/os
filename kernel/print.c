@@ -1,5 +1,6 @@
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
+#include "null.h"
 #include "print.h"
 
 const struct serial_line_configuration
@@ -20,7 +21,8 @@ enum {
     MAX_STRING = 1024
 };
 
-int print_0(struct printer* printer, const char* format, int len) {
+static int print_to_device(struct printer* printer, const char* format,
+        int len) {
     if (PRINT_FRAMEBUFFER == printer->target) {
         framebuffer_write(format, len);
     } else if (PRINT_SERIAL_COM_1 == printer->target) {
@@ -71,7 +73,7 @@ static int print_int(struct printer* printer, int value) {
     return printer->buffer_offset - initial_offset;
 }
 
-static int print_string(struct printer* printer, char* value) {
+static int print_string(struct printer* printer, const char* value) {
     int initial_offset = printer->buffer_offset;
     int offset = 0;
     while (value[offset]) {
@@ -95,10 +97,8 @@ static int print_float(struct printer* printer, float value) {
     return printer->buffer_offset - initial_offset;
 }
 
-int print_1(struct printer* printer, const char* format,
-        /*struct print_argument* args,*/
-        struct print_argument* args,
-        int arg_len) {
+int print_n(struct printer* printer, const char* format,
+        const struct print_argument* args, int arg_len) {
     printer->buffer_offset = 0;
     int arg_num = 0;
     int in = 0;
@@ -120,13 +120,13 @@ int print_1(struct printer* printer, const char* format,
             return -1;
         }
         if (FORMAT_INT == format[in]) {
-            print_int(printer, args[arg_num].value.d);
+            print_int(printer, *(const int*)args[arg_num].value);
         } else if (FORMAT_STRING == format[in]) {
-            print_string(printer, args[arg_num].value.s);
+            print_string(printer, (const char*)args[arg_num].value);
         } else if (FORMAT_CHAR == format[in]) {
-            print_char(printer, args[arg_num].value.c);
+            print_char(printer, *(const char*)args[arg_num].value);
         } else if (FORMAT_FLOAT == format[in]) {
-            print_float(printer, args[arg_num].value.f);
+            print_float(printer, *(const float*)args[arg_num].value);
         } else {
             /** this should not happen */
             return -1;
@@ -134,6 +134,21 @@ int print_1(struct printer* printer, const char* format,
         in += 1;
         arg_num += 1;
     }
-    return print_0(printer, printer->buffer, printer->buffer_offset);
+    return print_to_device(printer, printer->buffer, printer->buffer_offset);
+}
+
+int print_0(struct printer* printer, const char* format) {
+    return print_n(printer, format, NULL, 0);
+}
+
+int print_1(struct printer* printer, const char* format, const void* first) {
+    const struct print_argument args[] = {{first}};
+    return print_n(printer, format, args, 1);
+}
+
+int print_2(struct printer* printer, const char* format, const void* first,
+        const void* second) {
+    const struct print_argument args[] = {{first}, {second}};
+    return print_n(printer, format, args, 2);
 }
 
