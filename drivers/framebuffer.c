@@ -72,6 +72,10 @@ void framebuffer_write(const char* s, int len) {
         if ('\n' == s[i]) {
             offset.column = 0;
             offset.row += 1;
+            if (offset.row >= MAX_ROWS) {
+                framebuffer_scroll(1);
+                offset.row -= 1;
+            }
             continue;
         }
         print_char(s[i], offset, WHITE_ON_BLACK);
@@ -79,6 +83,10 @@ void framebuffer_write(const char* s, int len) {
         if (offset.column >= MAX_COLUMNS) {
             offset.column = 0;
             offset.row += 1;
+            if (offset.row >= MAX_ROWS) {
+                framebuffer_scroll(1);
+                offset.row -= 1;
+            }
         }
     }
     framebuffer_set_cursor(offset);
@@ -87,11 +95,5 @@ void framebuffer_write(const char* s, int len) {
 void framebuffer_scroll(int rows) {
     memory_copy(VIDEO_MEMORY + (MAX_COLUMNS * rows),
             VIDEO_MEMORY, MAX_COLUMNS * (MAX_ROWS - rows));
-    struct framebuffer_offset cursor = framebuffer_get_cursor();
-    cursor.row -= rows;
-    if (cursor.row < 0) {
-        cursor.row = 0;
-    }
-    framebuffer_set_cursor(cursor);
 }
 

@@ -152,3 +152,24 @@ int print_2(struct printer* printer, const char* format, const void* first,
     return print_n(printer, format, args, 2);
 }
 
+int print_3(struct printer* printer, const char* format, const void* first,
+        const void* second, const void* third) {
+    const struct print_argument args[] = {{first}, {second}, {third}};
+    return print_n(printer, format, args, 3);
+}
+
+int print_4(struct printer* printer, const char* format, const void* first,
+        const void* second, const void* third, const void* fourth) {
+    const struct print_argument args[] = {{first}, {second}, {third},
+        {fourth}};
+    return print_n(printer, format, args, 4);
+}
+
+int print_5(struct printer* printer, const char* format, const void* first,
+        const void* second, const void* third, const void* fourth,
+        const void* fifth) {
+    const struct print_argument args[] = {{first}, {second}, {third},
+        {fourth}, {fifth}};
+    return print_n(printer, format, args, 5);
+}
+

@@ -29,6 +29,12 @@ void main(void) {
     int test = 10;
     print(printer, "printing number: %d\n", &test);
     print(printer, "printing number %d and string %s\n", &test, "testing");
+    const int things = 5;
+    print(printer, "printing %d things. %s, %s, %s, and %s\n!",
+            &things, "this", "that", "those", "these");
+    for (int i = 0; i < 20; i++) {
+        print(printer, "row %d\n", &i);
+    }
     print(printer, "exiting");
 }
 
