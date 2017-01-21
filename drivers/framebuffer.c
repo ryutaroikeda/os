@@ -93,7 +93,10 @@ void framebuffer_write(const char* s, int len) {
 }
 
 void framebuffer_scroll(int rows) {
-    memory_copy(VIDEO_MEMORY + (MAX_COLUMNS * rows),
-            VIDEO_MEMORY, MAX_COLUMNS * (MAX_ROWS - rows));
+    memory_copy(VIDEO_MEMORY + 2 * (MAX_COLUMNS * rows),
+            VIDEO_MEMORY, 2 * MAX_COLUMNS * (MAX_ROWS - rows));
+    for (int i = 0; i < 2 * MAX_COLUMNS * rows; i++) {
+        VIDEO_MEMORY[2 * MAX_COLUMNS * (MAX_ROWS - rows) + i] = 0;
+    }
 }
 

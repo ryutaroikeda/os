@@ -18,22 +18,29 @@ void main(void) {
     p.port = port;
     struct printer* printer = &p;
 
+    struct printer logger;
+    logger.target = PRINT_SERIAL_COM_1;
+    logger.port = port;
+    struct printer* l = &logger;
+
     print(printer, "hello world!\n");
     print(printer, "hola mundo!\n");
 
-    printer->target = PRINT_SERIAL_COM_1;
-    print(printer, "testing serial write\nwith printer");
+    print(l, "testing serial write\nwith printer\n");
 
-    printer->target = PRINT_FRAMEBUFFER;
     print(printer, "printing string: %s\n", "arg string");
     int test = 10;
     print(printer, "printing number: %d\n", &test);
     print(printer, "printing number %d and string %s\n", &test, "testing");
     const int things = 5;
-    print(printer, "printing %d things. %s, %s, %s, and %s\n!",
+    print(printer, "printing %d things. %s, %s, %s, and %s!\n",
             &things, "this", "that", "those", "these");
     for (int i = 0; i < 20; i++) {
-        print(printer, "row %d\n", &i);
+        int bytes = print(printer, "row %d\n", &i);
+        print(l, "printed %d bytes\n", &bytes);
+    }
+    for (int i = 0; i < 80; i++) {
+        print(printer, "x");
     }
     print(printer, "exiting");
 }
