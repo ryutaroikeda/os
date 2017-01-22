@@ -18,7 +18,7 @@ static const struct framebuffer_attribute WHITE_ON_BLACK = {
     FRAMEBUFFER_BLACK
 };
 
-static char get_attribute_bits(struct framebuffer_attribute attribute) {
+static char pack_attribute(struct framebuffer_attribute attribute) {
     return (char) (((attribute.background & 0xff) << 4) |
         (attribute.foreground & 0xff));
 }
@@ -27,13 +27,13 @@ static void print_char(char c, struct framebuffer_offset offset,
         struct framebuffer_attribute attribute) {
     VIDEO_MEMORY[2 * (offset.row * MAX_COLUMNS + offset.column)] = c;
     VIDEO_MEMORY[2 * (offset.row * MAX_COLUMNS + offset.column) + 1] =
-        get_attribute_bits(attribute);
+        pack_attribute(attribute);
 }
 
 void framebuffer_clear_screen(void) {
     for (int i = 0; i < MAX_ROWS * MAX_COLUMNS; i++) {
         VIDEO_MEMORY[2 * i] = ' ';
-        VIDEO_MEMORY[(2 * i) + 1] = get_attribute_bits(WHITE_ON_BLACK);
+        VIDEO_MEMORY[(2 * i) + 1] = pack_attribute(WHITE_ON_BLACK);
     }
 }
 

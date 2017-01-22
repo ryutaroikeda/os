@@ -1,6 +1,8 @@
 #ifndef _print_h_
 #define _print_h_
 
+#include "drivers/serial.h"
+
 enum printer_target {
     PRINT_FRAMEBUFFER,
     PRINT_SERIAL_COM_1

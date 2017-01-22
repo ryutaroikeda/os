@@ -8,7 +8,7 @@ CFLAGS=-Wextra -Wall -pedantic -Werror -Wshadow \
 	   -std=c99
 
 C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
-ASM_SOURCES = $(wildcard drivers/*.asm)
+ASM_SOURCES = $(wildcard kernel/*.asm drivers/*.asm)
 OBJ = $(C_SOURCES:.c=.o)
 ASM_OBJ = $(ASM_SOURCES:.asm=.asmo)
 
@@ -22,9 +22,6 @@ os.img: boot_strap.img kernel.bin
 
 kernel.bin: kernel/kernel_entry.o $(OBJ) $(ASM_OBJ)
 	ld -m elf_i386 -o $@ -Ttext 0x1000 --oformat binary -entry=main $^
-
-kernel/kernel_entry.o: kernel/kernel_entry.asm
-	nasm $< -f elf -o $@
 
 boot_strap.img: boot/boot_strap.asm boot/*
 	nasm -f bin -i 'boot/' -o $@ $<

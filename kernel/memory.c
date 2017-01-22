@@ -9,3 +9,10 @@ void memory_copy(char* source, char* destination, int len) {
     }
 }
 
+void memory_set(void* destination, unsigned char byte, int len) {
+    unsigned char* d = (unsigned char*) destination;
+    for (int i = 0; i < len; i++) {
+        d[i] = byte;
+    }
+}
+

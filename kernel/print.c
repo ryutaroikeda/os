@@ -1,5 +1,6 @@
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
+#include "integer.h"
 #include "null.h"
 #include "print.h"
 
@@ -12,6 +13,9 @@ BUFFER_CONFIG = { 3, 0, 1, 1, 1 };
 enum {
     FORMAT_PERCENT = '%',
     FORMAT_INT = 'd',
+    FORMAT_UNSIGNED_INT = 'u',
+    FORMAT_UINT16 = 't',
+    FORMAT_BYTE = 'b',
     FORMAT_FLOAT = 'f',
     FORMAT_CHAR = 'c',
     FORMAT_STRING = 's'
@@ -48,16 +52,12 @@ static int print_char(struct printer* printer, char value) {
     return 1;
 }
 
-static int print_int(struct printer* printer, int value) {
+static int print_uint16(struct printer* printer, uint16 value) {
     if (0 == value) {
         print_char(printer, '0');
         return 1;
     }
     int initial_offset = printer->buffer_offset;
-    if (value < 0) {
-        print_char(printer, '-');
-        value *= -1;
-    }
     char buffer[32];
     int offset = 0;
     while (0 < value) {
@@ -65,12 +65,55 @@ static int print_int(struct printer* printer, int value) {
         offset += 1;
         value /= 10;
     }
-
     for (int i = 0; i < offset; i++) {
         print_char(printer, buffer[offset - 1 - i]);
     }
-
     return printer->buffer_offset - initial_offset;
+}
+
+static int print_unsigned_int(struct printer* printer, unsigned int value) {
+    if (0 == value) {
+        print_char(printer, '0');
+        return 1;
+    }
+    int initial_offset = printer->buffer_offset;
+    char buffer[32];
+    int offset = 0;
+    while (0 < value) {
+        buffer[offset] = (char) ((value % 10) + '0');
+        offset += 1;
+        value /= 10;
+    }
+    for (int i = 0; i < offset; i++) {
+        print_char(printer, buffer[offset - 1 - i]);
+    }
+    return printer->buffer_offset - initial_offset;
+}
+
+static int print_byte(struct printer* printer, unsigned char value) {
+    int initial_offset = printer->buffer_offset;
+    char buffer[32];
+    for (int i = 0; i < 2; i++) {
+        char c = (char) (value & 0xf);
+        if (10 <= c) {
+            c = (char) (c - 10 + 'a');
+        } else {
+            c = (char) (c + '0');
+        }
+        buffer[i] = c;
+        value = value >> 4;
+    }
+    print_char(printer, buffer[1]);
+    print_char(printer, buffer[0]);
+    return printer->buffer_offset - initial_offset;
+}
+
+static int print_int(struct printer* printer, int value) {
+    if (value < 0) {
+        print_char(printer, '-');
+        value *= -1;
+    }
+    return print_unsigned_int(printer, (unsigned int) value);
 }
 
 static int print_string(struct printer* printer, const char* value) {
@@ -121,6 +164,14 @@ int print_n(struct printer* printer, const char* format,
         }
         if (FORMAT_INT == format[in]) {
             print_int(printer, *(const int*)args[arg_num].value);
+        } else if (FORMAT_UNSIGNED_INT == format[in]) {
+            print_unsigned_int(printer,
+                    *(const unsigned int*)args[arg_num].value);
+        } else if (FORMAT_UINT16 == format[in]) {
+            print_uint16(printer, *(const uint16*)args[arg_num].value);
+        } else if (FORMAT_BYTE == format[in]) {
+            print_byte(printer,
+                    *(const unsigned char*)args[arg_num].value);
         } else if (FORMAT_STRING == format[in]) {
             print_string(printer, (const char*)args[arg_num].value);
         } else if (FORMAT_CHAR == format[in]) {

@@ -20,7 +20,9 @@
  * baud rate.
  * DLAB is a bit in the line control register.
  */
-#define LINE_ENABLE_DLAB 0x80
+enum {
+    LINE_ENABLE_DLAB = 0x80
+};
 
 /**
  * Set the divisor for the baud rate. This will mangle the serial line
@@ -39,7 +41,7 @@ static void configure_baud_rate(struct serial_port port,
     port_byte_out(LINE_CONTROL_REGISTER(port.port), 0x00);
 }
 
-static unsigned char get_line_configuration_bits(
+static unsigned char pack_line_configuration(
         struct serial_line_configuration config) {
     return (unsigned char) (
             (config.character_length & 0x03) |
@@ -51,10 +53,10 @@ void serial_configure_line(struct serial_port port,
         struct serial_line_configuration config) {
     configure_baud_rate(port, config.baud_rate_divisor);
     port_byte_out(LINE_CONTROL_REGISTER(port.port),
-            get_line_configuration_bits(config));
+            pack_line_configuration(config));
 }
 
-static unsigned char get_buffer_configuration_bits(
+static unsigned char pack_buffer_configuration(
         struct serial_buffer_configuration config) {
     return (unsigned char) (
             (config.enable_fifo & 0x01) |
@@ -67,7 +69,7 @@ static unsigned char get_buffer_configuration_bits(
 void serial_configure_buffer(struct serial_port port,
         struct serial_buffer_configuration config) {
     port_byte_out(FIFO_CONTROL_REGISTER(port.port),
-            get_buffer_configuration_bits(config));
+            pack_buffer_configuration(config));
 }
 
 static bool transmission_buffer_is_empty(Port port) {
