@@ -29,17 +29,31 @@ interrupt_handler_%1:
 interrupt_handler_without_error_code 0
 interrupt_handler_without_error_code 1
 interrupt_handler_without_error_code 2
+interrupt_handler_without_error_code 6
+interrupt_handler_without_error_code 39
 
 global common_interrupt_handler
 
 common_interrupt_handler:
-    pushad
+    push eax
+    push ecx
+    push edx
+    push ebx
+    push ebp
+    push esi
+    push edi
 
     ; This is defined in kernel/interrupt.c
     ; Hope that our stack doesn't get corrupted.
     call interrupt_handler
 
-    popad
+    pop edi
+    pop esi
+    pop ebp
+    pop ebx
+    pop edx
+    pop ecx
+    pop eax
 
     ; Assume that this was called with the error code and the interrupt number
     ; on the stack.
@@ -66,9 +80,14 @@ interrupt_enable:
     sti
     ret
 
-global interrupt_test
+global interrupt_0
 
-interrupt_test:
-    int 1
+interrupt_0:
+    int 0
+    ret
+
+global interrupt_39
+interrupt_39:
+    int 39
     ret
 

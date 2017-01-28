@@ -8,13 +8,7 @@
  * master: 0 to 7, 0x8, 0x8 to 0xf
  */
 
-enum pic_port {
-    PIC_MASTER_PORT = 0x20,
-    PIC_SLAVE_PORT = 0xa0
-};
-
 enum pic_command {
-    //PIC_INITIALIZE = 0x11,
     PIC_ACKNOWLEDGE = 0x20
 };
 
@@ -36,6 +30,11 @@ enum pic_initialization_command_word {
     ICW_4_BUFFERED_SLAVE_MODE = 0x08,
     ICW_4_BUFFERED_MASTER_MODE = 0x0c,
     ICW_4_SPECIAL_FULLY_NESTED_MODE = 0x10
+};
+
+enum pic_operation_command_word {
+    OCW_3_READ_INTERRUPT_REQUEST_REGISTER = 0xa,
+    OCW_3_READ_IN_SERVICE_REGISTER = 0xb
 };
 
 #define PIC_COMMAND(base) (base)
@@ -136,5 +135,20 @@ void pic_unset_mask(unsigned char irq) {
     }
     unsigned char value = (unsigned char) (port_byte_in(port) & ~(1 << irq));
     port_byte_out(port, value);
+}
+
+static uint16 get_interrupt_register(uint8 ocw3) {
+    port_byte_out(PIC_COMMAND(PIC_MASTER_PORT), ocw3);
+    port_byte_out(PIC_COMMAND(PIC_SLAVE_PORT), ocw3);
+    return port_byte_in((Port)((PIC_DATA(PIC_MASTER_PORT) << 8) |
+        port_byte_in(PIC_DATA(PIC_SLAVE_PORT))));
+}
+
+uint16 pic_get_in_service_register(void) {
+    return get_interrupt_register(OCW_3_READ_IN_SERVICE_REGISTER);
+}
+
+uint16 pic_get_interrupt_request_register(void) {
+    return get_interrupt_register(OCW_3_READ_INTERRUPT_REQUEST_REGISTER);
 }
 

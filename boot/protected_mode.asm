@@ -18,15 +18,15 @@ switch_to_protected_mode:
 init_protected_mode:
 	; update segment registers
 	mov ax, DATA_SEG
+    ; do we want to use lss? Is mov ss okay in real mode?
+    mov ss, ax
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
 
-	; I don't know why this doesn't work
-	;; move the stack to the top of free space.
-	;;mov ebp, 0x90000
-	;;mov esp, ebp
+	mov ebp, 0x90000
+	mov esp, ebp
 
 	call BEGIN_PM
 

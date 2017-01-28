@@ -1,10 +1,12 @@
 #ifndef _interrupt_h_
 #define _interrupt_h_
 
+#include "integer.h"
+
 struct printer;
 
 enum privilege_level {
-    PRIVILEGE_KERNEL = 0
+    INTERRUPT_PRIVILEGE_KERNEL = 0
 };
 
 struct interrupt_descriptor {
@@ -25,25 +27,24 @@ struct interrupt_descriptor_table {
 
 /**
  * interrupt handling in c is apparently a bad idea because gcc with
- * optimization will mangle the stack
+ * optimization can corrupt the stack
  */
 struct cpu_state {
-    unsigned int eax;
-    unsigned int ecx;
-    unsigned int edx;
-    unsigned int ebx;
-    unsigned int esp;
-    unsigned int ebp;
-    unsigned int esi;
-    unsigned int edi;
-};
+    uint32 eax;
+    uint32 ecx;
+    uint32 edx;
+    uint32 ebx;
+    uint32 ebp;
+    uint32 esi;
+    uint32 edi;
+} __attribute__((packed));
 
 struct interrupt_stack {
-    unsigned int error_code;
-    unsigned int eip;
-    unsigned int cs;
-    unsigned int eflags;
-};
+    uint32 error_code;
+    uint32 eip;
+    uint32 cs;
+    uint32 eflags;
+} __attribute__((packed));
 
 void interrupt_set_descriptor(struct interrupt_descriptor*,
         unsigned int offset, unsigned short segment_selector,
@@ -59,11 +60,12 @@ void interrupt_print_descriptor(struct printer*,
 
 void interrupt_enable(void);
 
-void interrupt_test(void);
+void interrupt_print_registers(struct printer*, const struct cpu_state*);
+void interrupt_print_stack(struct printer*, const struct interrupt_stack*);
 
 extern void* interrupt_handler_0;
 extern void* interrupt_handler_1;
-extern void* interrupt_handler_2;
+extern void* interrupt_handler_6;
 
 #endif
 
