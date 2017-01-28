@@ -35,9 +35,14 @@ void main(void) {
     /*
     print(logger, "remapping PIC\n");
     pic_remap(PIC_MASTER_PORT, PIC_SLAVE_PORT);
-    */
     pic_set_all_mask();
-    //pic_unset_mask(PIC_MASTER_OFFSET + 0x0);
+    */
+    /*
+    pic_unset_mask(PIC_MASTER_OFFSET + 0x2);
+    pic_unset_mask(PIC_SLAVE_OFFSET + 0x7);
+    pic_unset_mask(PIC_MASTER_PORT + 0x0);
+    pic_unset_mask(PIC_MASTER_PORT + 0x1);
+    */
 
     struct interrupt_descriptor table[256];
     memory_set(table, 0, sizeof(table));
@@ -53,11 +58,9 @@ void main(void) {
     interrupt_set_descriptor(&table[0],
             (unsigned int)&interrupt_handler_0, GDT_CODE_SEGMENT,
             INTERRUPT_PRIVILEGE_KERNEL);
-    /*
     interrupt_set_descriptor(&table[6],
             (unsigned int)&interrupt_handler_6, GDT_CODE_SEGMENT,
             INTERRUPT_PRIVILEGE_KERNEL);
-            */
     /*
     interrupt_set_descriptor(&table[1],
             (unsigned int)&interrupt_handler_1, GDT_CODE_SEGMENT,
@@ -70,8 +73,11 @@ void main(void) {
     interrupt_load_descriptor_table(&table_info);
     print(logger, "table info: .limit = %t .base = %t\n",
             &table_info.limit, &table_info.base);
-
     interrupt_print_descriptor(logger, &table[0]);
+
+    uint32 iss = sizeof(struct interrupt_stack);
+    print(logger, "sizeof(struct interrupt_stack) = %u\n", &iss);
+    //interrupt_enable();
 
     print(logger, "dividing by zero\n");
     int y = 0;

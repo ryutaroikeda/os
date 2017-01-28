@@ -32,28 +32,39 @@ interrupt_handler_without_error_code 2
 interrupt_handler_without_error_code 6
 interrupt_handler_without_error_code 39
 
+REGISTER_NUM equ 8
 global common_interrupt_handler
 
 common_interrupt_handler:
-    push eax
-    push ecx
-    push edx
+    pushad
+
+    ; Push the irq
+    mov eax, esp
+    mov ebx, [eax + (REGISTER_NUM * 4)]
     push ebx
-    push ebp
-    push esi
-    push edi
+
+    ; Push pointer to interrupt stack. Assume ss is code segment with base 0
+    ; This should be safer than pushing registers into C because the compiler
+    ; might corrupt the stack.
+    mov ebx, eax
+    add ebx, (REGISTER_NUM + 1) * 4
+    push ebx
 
     ; This is defined in kernel/interrupt.c
-    ; Hope that our stack doesn't get corrupted.
     call interrupt_handler
 
-    pop edi
-    pop esi
-    pop ebp
-    pop ebx
-    pop edx
-    pop ecx
+    ; Clean up the arguments
     pop eax
+    pop eax
+
+    popad
+    ;pop edi
+    ;pop esi
+    ;pop ebp
+    ;pop ebx
+    ;pop edx
+    ;pop ecx
+    ;pop eax
 
     ; Assume that this was called with the error code and the interrupt number
     ; on the stack.
@@ -84,6 +95,11 @@ global interrupt_0
 
 interrupt_0:
     int 0
+    ret
+
+global interrupt_6
+interrupt_6:
+    int 6
     ret
 
 global interrupt_39

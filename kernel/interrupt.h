@@ -27,8 +27,11 @@ struct interrupt_descriptor_table {
 
 /**
  * interrupt handling in c is apparently a bad idea because gcc with
- * optimization can corrupt the stack
+ * optimization can corrupt the stack.
+ * How about pushing irq and pointers to state and stack instead? Then it's
+ * safe
  */
+/*
 struct cpu_state {
     uint32 eax;
     uint32 ecx;
@@ -38,6 +41,7 @@ struct cpu_state {
     uint32 esi;
     uint32 edi;
 } __attribute__((packed));
+*/
 
 struct interrupt_stack {
     uint32 error_code;
@@ -52,20 +56,28 @@ void interrupt_set_descriptor(struct interrupt_descriptor*,
 
 void interrupt_load_descriptor_table(struct interrupt_descriptor_table*);
 
-void interrupt_handler(struct cpu_state cpu, struct interrupt_stack stack,
-        unsigned int interrupt);
+/*
+void interrupt_handler(const struct cpu_state*, const struct interrupt_stack*,
+        uint32 irq);
+        */
+
+void interrupt_handler(const struct interrupt_stack*, uint32 irq);
 
 void interrupt_print_descriptor(struct printer*,
         const struct interrupt_descriptor*);
 
 void interrupt_enable(void);
 
-void interrupt_print_registers(struct printer*, const struct cpu_state*);
+//void interrupt_print_registers(struct printer*, const struct cpu_state*);
 void interrupt_print_stack(struct printer*, const struct interrupt_stack*);
 
 extern void* interrupt_handler_0;
 extern void* interrupt_handler_1;
 extern void* interrupt_handler_6;
+
+void interrupt_0(void);
+void interrupt_6(void);
+void interrupt_39(void);
 
 #endif
 

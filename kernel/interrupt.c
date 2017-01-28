@@ -22,6 +22,7 @@ static unsigned char pack_attributes(
             (unsigned int) ((handler_present & 0x1) << 7));
 }
 
+/*
 void interrupt_print_registers(struct printer* p,
         const struct cpu_state* state)
 {
@@ -33,6 +34,7 @@ void interrupt_print_registers(struct printer* p,
     print(p, "esi %u\n", &state->esi);
     print(p, "edi %u\n", &state->edi);
 }
+*/
 
 void interrupt_print_stack(struct printer* p,
         const struct interrupt_stack* stack) {
@@ -40,6 +42,19 @@ void interrupt_print_stack(struct printer* p,
     print(p, "eip: %u\n", &stack->eip);
     print(p, "cs: %u\n", &stack->cs);
     print(p, "eflags: %u\n", &stack->eflags);
+}
+
+void interrupt_print_descriptor(struct printer* printer,
+        const struct interrupt_descriptor* desc) {
+    const char* bytes = (const char*) desc;
+    for (unsigned int i = 0; i < 4; i++) {
+        print(printer, "%b", &bytes[i]);
+    }
+    print(printer, "\n");
+    for (unsigned int i = 4; i < 8; i++) {
+        print(printer, "%b", &bytes[i]);
+    }
+    print(printer, "\n");
 }
 
 void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
@@ -53,13 +68,12 @@ void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
         pack_attributes(TRAP_GATE_32, 0, privilege_level, 1);
 }
 
-void interrupt_handler(struct cpu_state cpu, struct interrupt_stack stack,
-        unsigned int irq) {
+void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
     if (INTERRUPT_DIVIDE_BY_ZERO == irq) {
-        panic(&cpu, &stack, irq, "division by zero");
+        panic(stack, irq, "division by zero");
     }
     if (INTERRUPT_INVALID_OPCODE == irq) {
-        panic(&cpu, &stack, irq, "invalid opcode");
+        panic(stack, irq, "invalid opcode");
     }
     if (PIC_MASTER_OFFSET + 0x7 == irq) {
         /* Is this spurious? */
@@ -75,22 +89,11 @@ void interrupt_handler(struct cpu_state cpu, struct interrupt_stack stack,
         if (!(isr & (1 << 15))) {
             /* We have a spurious interrupt. Tell the master PIC */
             pic_acknowledge((uint8) (PIC_MASTER_OFFSET + 0x2));
+            return;
         }
     }
+    panic(stack, irq, "unknown interrupt");
     // only for interrupts from pic
     //pic_acknowledge((unsigned char)irq);
-}
-
-void interrupt_print_descriptor(struct printer* printer,
-        const struct interrupt_descriptor* desc) {
-    const char* bytes = (const char*) desc;
-    for (unsigned int i = 0; i < 4; i++) {
-        print(printer, "%b", &bytes[i]);
-    }
-    print(printer, "\n");
-    for (unsigned int i = 4; i < 8; i++) {
-        print(printer, "%b", &bytes[i]);
-    }
-    print(printer, "\n");
 }
 
