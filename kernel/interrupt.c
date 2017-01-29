@@ -1,16 +1,26 @@
 #include "drivers/pic.h"
 #include "interrupt.h"
+#include "gdt.h"
+#include "memory.h"
 #include "panic.h"
 #include "print.h"
 
 enum {
     INTERRUPT_DIVIDE_BY_ZERO = 0x0,
     INTERRUPT_INVALID_OPCODE = 0x6,
+    INTERRUPT_GENERAL_PROTECTION = 0xd
 };
 
 enum gate_type {
     TRAP_GATE_32 = 0xf
 };
+
+enum {
+    INTERRUPT_GATEWAY_SIZE = 256
+};
+
+static struct interrupt_descriptor idt[INTERRUPT_GATEWAY_SIZE];
+static struct interrupt_descriptor_table table_info;
 
 static unsigned char pack_attributes(
         enum gate_type type, int storage_segment,
@@ -21,20 +31,6 @@ static unsigned char pack_attributes(
             (unsigned int) ((level & 0x3) << 5) +
             (unsigned int) ((handler_present & 0x1) << 7));
 }
-
-/*
-void interrupt_print_registers(struct printer* p,
-        const struct cpu_state* state)
-{
-    print(p, "eax %u\n", &state->eax);
-    print(p, "ebx %u\n", &state->ebx);
-    print(p, "ecx %u\n", &state->ecx);
-    print(p, "edx %u\n", &state->edx);
-    print(p, "ebp %u\n", &state->ebp);
-    print(p, "esi %u\n", &state->esi);
-    print(p, "edi %u\n", &state->edi);
-}
-*/
 
 void interrupt_print_stack(struct printer* p,
         const struct interrupt_stack* stack) {
@@ -78,6 +74,19 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
     if (INTERRUPT_INVALID_OPCODE == irq) {
         panic(stack, irq, "invalid opcode");
     }
+    if (INTERRUPT_GENERAL_PROTECTION == irq) {
+        panic(stack, irq, "general protection fault");
+    }
+    if (PIC_MASTER_OFFSET + 0x0 == irq) {
+        print(&p, "timer chip\n");
+        pic_acknowledge((uint8) irq);
+        return;
+    }
+    if (PIC_MASTER_OFFSET + 0x1 == irq) {
+        print(&p, "keyboard\n");
+        pic_acknowledge((uint8) irq);
+        return;
+    }
     if (PIC_MASTER_OFFSET + 0x7 == irq) {
         /* Is this spurious? */
         uint16 isr = pic_get_in_service_register();
@@ -99,8 +108,81 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
             return;
         }
     }
+
     panic(stack, irq, "unknown interrupt");
-    // only for interrupts from pic
-    //pic_acknowledge((unsigned char)irq);
+}
+
+void interrupt_initialize(struct printer* printer) {
+    memory_set(idt, 0, sizeof(idt));
+    memory_set(&table_info, 0, sizeof(struct interrupt_descriptor_table));
+    int tabsize = sizeof(idt);
+    int tabsize0 = sizeof(idt[0]);
+    print(printer, "sizeof(idt) = %d, sizeof(idt[0]) = %d\n",
+            &tabsize, &tabsize0);
+
+    print(printer, "loading interrupt descriptor table\n");
+    uint32 idtr_size = sizeof(struct interrupt_descriptor_table);
+    print(printer, "size of IDTR struct is %u\n", &idtr_size);
+
+    interrupt_set_descriptor(&idt[0],
+            (uint32)&interrupt_handler_0, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[1],
+            (uint32)&interrupt_handler_1, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[3],
+            (uint32)&interrupt_handler_3, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[4],
+            (uint32)&interrupt_handler_4, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[5],
+            (uint32)&interrupt_handler_5, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[6],
+            (uint32)&interrupt_handler_6, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[7],
+            (uint32)&interrupt_handler_7, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[8],
+            (uint32)&interrupt_handler_8, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[9],
+            (uint32)&interrupt_handler_9, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[10],
+            (uint32)&interrupt_handler_10, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[11],
+            (uint32)&interrupt_handler_11, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[12],
+            (uint32)&interrupt_handler_12, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[13],
+            (uint32)&interrupt_handler_13, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[14],
+            (uint32)&interrupt_handler_14, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[16],
+            (uint32)&interrupt_handler_16, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+
+    interrupt_set_descriptor(&idt[32],
+            (uint32)&interrupt_handler_32, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[33],
+            (uint32)&interrupt_handler_33, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+
+    table_info.limit = (sizeof(idt) / sizeof(idt[0])) - 1;
+    table_info.base = idt;
+    interrupt_load_descriptor_table(&table_info);
+    print(printer, "table info: .limit = %t .base = %t\n",
+            &table_info.limit, &table_info.base);
+    interrupt_print_descriptor(printer, &idt[0]);
+
 }
 

@@ -21,3 +21,12 @@ port_byte_in:
 	in al, dx
 	ret
 
+global port_wait:
+
+; Do a dummy write to port 0x80 to "flush" the bus
+; Port 0x80 is not available on qemu-system-i386 version 2.5
+port_wait:
+    mov al, 0
+    mov dx, 0x80
+    out dx, al
+

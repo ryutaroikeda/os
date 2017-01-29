@@ -14,7 +14,7 @@ enum pic_vector_offset {
     PIC_SLAVE_END = PIC_SLAVE_OFFSET + 0x07
 };
 
-void pic_remap(unsigned char master_offset, unsigned char slave_offset);
+void pic_remap(void);
 
 void pic_acknowledge(unsigned char interrupt);
 

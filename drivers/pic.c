@@ -48,27 +48,30 @@ enum pic_operation_command_word {
  * @param master_offset Vector offset for master PIC.
  * @param slave_offset Vector offset for slave PIC.
  */
-void pic_remap(uint8 master_offset, uint8 slave_offset) {
+void pic_remap(void) {
+    uint8 master_offset = PIC_MASTER_OFFSET;
+    uint8 slave_offset = PIC_SLAVE_OFFSET;
+
     /* Save data ports. */
     uint8 master_data = port_byte_in(PIC_DATA(PIC_MASTER_PORT));
     uint8 slave_data = port_byte_in(PIC_DATA(PIC_SLAVE_PORT));
 
-    /* Assume things are fine with the serial port and don't bother making
-     * sure the write is finished between operations.
-     * Start initialization in cascade mode. */
+    /* Start initialization in cascade mode. */
     port_byte_out(PIC_COMMAND(PIC_MASTER_PORT),
             ICW_1_NEED_ICW_4 | ICW_1_INITIALIZE);
+    port_byte_out(PIC_COMMAND(PIC_SLAVE_PORT),
+            ICW_1_NEED_ICW_4 | ICW_1_INITIALIZE);
+
     port_byte_out(PIC_DATA(PIC_MASTER_PORT), master_offset);
+    port_byte_out(PIC_DATA(PIC_SLAVE_PORT), slave_offset);
+
     /* Tell master there's a slave at IRQ 2.
      * The position of the bit corresponds to the IRQ (0000 0100) */
     port_byte_out(PIC_DATA(PIC_MASTER_PORT), 0x04);
-    port_byte_out(PIC_DATA(PIC_MASTER_PORT), ICW_4_8086);
-
-    port_byte_out(PIC_COMMAND(PIC_SLAVE_PORT),
-            ICW_1_NEED_ICW_4 | ICW_1_INITIALIZE);
-    port_byte_out(PIC_DATA(PIC_SLAVE_PORT), slave_offset);
     /* Tell slave its cascade identity (IRQ 2). */
     port_byte_out(PIC_DATA(PIC_SLAVE_PORT), 2);
+
+    port_byte_out(PIC_DATA(PIC_MASTER_PORT), ICW_4_8086);
     port_byte_out(PIC_DATA(PIC_SLAVE_PORT), ICW_4_8086);
 
     /* Restore data ports. */
@@ -82,7 +85,7 @@ void pic_remap(uint8 master_offset, uint8 slave_offset) {
  * end-of-interrupt).
  * @param interrupt
  */
-void pic_acknowledge(unsigned char irq) {
+void pic_acknowledge(uint8 irq) {
     if ((irq < PIC_MASTER_OFFSET) || (PIC_SLAVE_END < irq)) {
         /* This shouldn't happen. */
         return;
@@ -99,7 +102,7 @@ void pic_acknowledge(unsigned char irq) {
  * Each bit corresponds to an irq. When the bit is set, the irq is disabled.
  */
 
-void pic_set_mask(unsigned char irq) {
+void pic_set_mask(uint8 irq) {
     if ((irq < PIC_MASTER_OFFSET) || (PIC_SLAVE_END < irq)) {
         /* This shouldn't happen. */
         return;
@@ -107,21 +110,21 @@ void pic_set_mask(unsigned char irq) {
     Port port;
     if (PIC_SLAVE_OFFSET <= irq) {
         port = PIC_SLAVE_PORT;
-        irq = (unsigned char) (irq - PIC_SLAVE_OFFSET);
+        irq = (uint8) (irq - PIC_SLAVE_OFFSET);
     } else {
         port = PIC_MASTER_PORT;
-        irq = (unsigned char) (irq - PIC_MASTER_OFFSET);
+        irq = (uint8) (irq - PIC_MASTER_OFFSET);
     }
-    unsigned char value = (unsigned char) (port_byte_in(port) | (1 << irq));
-    port_byte_out(port, value);
+    uint8 value = (uint8) (port_byte_in(port) | (1 << irq));
+    port_byte_out((uint8)PIC_DATA(port), value);
 }
 
 void pic_set_all_mask() {
-    port_byte_out(PIC_SLAVE_PORT, 0xff);
-    port_byte_out(PIC_MASTER_PORT, 0xff);
+    port_byte_out(PIC_DATA(PIC_SLAVE_PORT), 0xff);
+    port_byte_out(PIC_DATA(PIC_MASTER_PORT), 0xff);
 }
 
-void pic_unset_mask(unsigned char irq) {
+void pic_unset_mask(uint8 irq) {
     if ((irq < PIC_MASTER_OFFSET) || (PIC_SLAVE_END < irq)) {
         /* Shouldn't happen. */
         return;
@@ -129,13 +132,13 @@ void pic_unset_mask(unsigned char irq) {
     Port port;
     if (PIC_SLAVE_OFFSET <= irq) {
         port = PIC_SLAVE_PORT;
-        irq = (unsigned char) (irq - PIC_SLAVE_OFFSET);
+        irq = (uint8) (irq - PIC_SLAVE_OFFSET);
     } else {
         port = PIC_MASTER_PORT;
-        irq = (unsigned char) (irq - PIC_MASTER_OFFSET);
+        irq = (uint8) (irq - PIC_MASTER_OFFSET);
     }
-    unsigned char value = (unsigned char) (port_byte_in(port) & ~(1 << irq));
-    port_byte_out(port, value);
+    uint8 value = (uint8) (port_byte_in(port) & ~(1 << irq));
+    port_byte_out((uint8)PIC_DATA(port), value);
 }
 
 static uint16 get_interrupt_register(uint8 ocw3) {

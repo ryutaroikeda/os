@@ -43,6 +43,7 @@ void interrupt_handler(const struct interrupt_stack*, uint32 irq);
 void interrupt_print_descriptor(struct printer*,
         const struct interrupt_descriptor*);
 
+void interrupt_initialize(struct printer*);
 void interrupt_enable(void);
 void interrupt_disable(void);
 
@@ -50,8 +51,22 @@ void interrupt_print_stack(struct printer*, const struct interrupt_stack*);
 
 extern void* interrupt_handler_0;
 extern void* interrupt_handler_1;
+extern void* interrupt_handler_3;
+extern void* interrupt_handler_4;
+extern void* interrupt_handler_5;
 extern void* interrupt_handler_6;
+extern void* interrupt_handler_7;
 extern void* interrupt_handler_8;
+extern void* interrupt_handler_9;
+extern void* interrupt_handler_10;
+extern void* interrupt_handler_11;
+extern void* interrupt_handler_12;
+extern void* interrupt_handler_13;
+extern void* interrupt_handler_14;
+extern void* interrupt_handler_16;
+
+extern void* interrupt_handler_32;
+extern void* interrupt_handler_33;
 
 void interrupt_0(void);
 void interrupt_6(void);

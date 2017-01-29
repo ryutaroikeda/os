@@ -26,20 +26,65 @@ interrupt_handler_%1:
 
 %endmacro
 
-interrupt_handler_without_error_code 0
+; fault -> eip points to instruction that caused the exception
+; trap -> eip points to instruction dynamically after offending instruction
+; abort -> cannot locate cause of exception, severe error
+
+; divide by zero fault
+interrupt_handler_without_error_code 0 
+; debug fault or trap
 interrupt_handler_without_error_code 1
-interrupt_handler_without_error_code 2
+; break point trap
+interrupt_handler_without_error_code 3
+; arithmetic overflow trap
+interrupt_handler_without_error_code 4
+; bounds check fault
+interrupt_handler_without_error_code 5
+; invalid opcode fault
 interrupt_handler_without_error_code 6
+; coprocessor not available
+interrupt_handler_without_error_code 7
+; double fault
 interrupt_handler_with_error_code 8
+; coprocessor overrun
+interrupt_handler_without_error_code 9
+; invalid tss fault
+interrupt_handler_with_error_code 10
+; segment not present fault
+interrupt_handler_with_error_code 11
+; stack fault
+interrupt_handler_with_error_code 12
+; general protection fault
+interrupt_handler_with_error_code 13
+; page fault
+interrupt_handler_with_error_code 14
+; coprocessor fault
+interrupt_handler_without_error_code 16
+
+interrupt_handler_without_error_code 32
+interrupt_handler_without_error_code 33
 interrupt_handler_without_error_code 39
 
 ; The number of registers pushed by pushad
-REGISTER_NUM equ 8
+REGISTER_NUM equ 8 + 5
 
 global common_interrupt_handler
 
 common_interrupt_handler:
     pushad
+    ; do we need to do this?
+    push ss
+    push ds
+    push es
+    push fs
+    push gs
+
+    mov ax, 0x10
+    mov ss, ax
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
 
     ; Make new call frame
     mov ebp, esp
@@ -60,6 +105,12 @@ common_interrupt_handler:
 
     ; Clear arguments
     add esp, 2 * 4
+    
+    pop gs
+    pop fs
+    pop es
+    pop ds
+    pop ss
 
     popad
 
