@@ -32,14 +32,14 @@ void main(void) {
 
     print(logger, "starting kernel\n");
 
-    /*
     print(logger, "remapping PIC\n");
     pic_remap(PIC_MASTER_PORT, PIC_SLAVE_PORT);
     pic_set_all_mask();
-    */
     /*
     pic_unset_mask(PIC_MASTER_OFFSET + 0x2);
     pic_unset_mask(PIC_SLAVE_OFFSET + 0x7);
+    */
+    /*
     pic_unset_mask(PIC_MASTER_PORT + 0x0);
     pic_unset_mask(PIC_MASTER_PORT + 0x1);
     */
@@ -56,10 +56,13 @@ void main(void) {
     print(logger, "size of IDTR struct is %u\n", &idtr_size);
 
     interrupt_set_descriptor(&table[0],
-            (unsigned int)&interrupt_handler_0, GDT_CODE_SEGMENT,
+            (uint32)&interrupt_handler_0, GDT_CODE_SEGMENT,
             INTERRUPT_PRIVILEGE_KERNEL);
     interrupt_set_descriptor(&table[6],
-            (unsigned int)&interrupt_handler_6, GDT_CODE_SEGMENT,
+            (uint32)&interrupt_handler_6, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&table[8],
+            (uint32)&interrupt_handler_8, GDT_CODE_SEGMENT,
             INTERRUPT_PRIVILEGE_KERNEL);
     /*
     interrupt_set_descriptor(&table[1],
@@ -77,7 +80,9 @@ void main(void) {
 
     uint32 iss = sizeof(struct interrupt_stack);
     print(logger, "sizeof(struct interrupt_stack) = %u\n", &iss);
-    //interrupt_enable();
+
+    print(logger, "enabling interrupt\n");
+    interrupt_enable();
 
     print(logger, "dividing by zero\n");
     int y = 0;

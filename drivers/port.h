@@ -3,9 +3,9 @@
 
 typedef unsigned short Port;
 
-void port_byte_out(Port port, unsigned char data);
+void port_byte_out(Port port, uint8 data);
 
-unsigned char port_byte_in(Port port);
+uint8 port_byte_in(Port port);
 
 #endif
 

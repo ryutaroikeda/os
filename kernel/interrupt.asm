@@ -16,7 +16,7 @@ interrupt_handler_%1:
 
 %macro interrupt_handler_with_error_code 1
 
-global interrupt_hander_%1
+global interrupt_handler_%1
 
 interrupt_handler_%1:
     ; The error code has already been pushed.
@@ -30,41 +30,38 @@ interrupt_handler_without_error_code 0
 interrupt_handler_without_error_code 1
 interrupt_handler_without_error_code 2
 interrupt_handler_without_error_code 6
+interrupt_handler_with_error_code 8
 interrupt_handler_without_error_code 39
 
+; The number of registers pushed by pushad
 REGISTER_NUM equ 8
+
 global common_interrupt_handler
 
 common_interrupt_handler:
     pushad
 
+    ; Make new call frame
+    mov ebp, esp
+
     ; Push the irq
-    mov eax, esp
-    mov ebx, [eax + (REGISTER_NUM * 4)]
+    mov ebx, [ebp + (REGISTER_NUM * 4)]
     push ebx
 
     ; Push pointer to interrupt stack. Assume ss is code segment with base 0
     ; This should be safer than pushing registers into C because the compiler
     ; might corrupt the stack.
-    mov ebx, eax
+    mov ebx, ebp
     add ebx, (REGISTER_NUM + 1) * 4
     push ebx
 
     ; This is defined in kernel/interrupt.c
     call interrupt_handler
 
-    ; Clean up the arguments
-    pop eax
-    pop eax
+    ; Clear arguments
+    add esp, 2 * 4
 
     popad
-    ;pop edi
-    ;pop esi
-    ;pop ebp
-    ;pop ebx
-    ;pop edx
-    ;pop ecx
-    ;pop eax
 
     ; Assume that this was called with the error code and the interrupt number
     ; on the stack.
@@ -86,9 +83,13 @@ interrupt_load_descriptor_table:
     ret
 
 global interrupt_enable
-
 interrupt_enable:
     sti
+    ret
+
+global interrupt_disable
+interrupt_disable:
+    cli
     ret
 
 global interrupt_0

@@ -1,3 +1,4 @@
+#include "kernel/integer.h"
 #include "pic.h"
 #include "port.h"
 
@@ -47,10 +48,10 @@ enum pic_operation_command_word {
  * @param master_offset Vector offset for master PIC.
  * @param slave_offset Vector offset for slave PIC.
  */
-void pic_remap(unsigned char master_offset, unsigned char slave_offset) {
+void pic_remap(uint8 master_offset, uint8 slave_offset) {
     /* Save data ports. */
-    unsigned char master_data = port_byte_in(PIC_DATA(PIC_MASTER_PORT));
-    unsigned char slave_data = port_byte_in(PIC_DATA(PIC_SLAVE_PORT));
+    uint8 master_data = port_byte_in(PIC_DATA(PIC_MASTER_PORT));
+    uint8 slave_data = port_byte_in(PIC_DATA(PIC_SLAVE_PORT));
 
     /* Assume things are fine with the serial port and don't bother making
      * sure the write is finished between operations.

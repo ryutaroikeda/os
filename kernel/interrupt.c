@@ -69,6 +69,9 @@ void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
 }
 
 void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
+    struct printer p;
+    p.target = PRINT_FRAMEBUFFER;
+
     if (INTERRUPT_DIVIDE_BY_ZERO == irq) {
         panic(stack, irq, "division by zero");
     }
@@ -80,6 +83,8 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
         uint16 isr = pic_get_in_service_register();
         if (!(isr & (1 << 7))) {
             /* We have a spurious interrupt. Don't acknowledge. */
+            interrupt_print_stack(&p, stack);
+            print(&p, "got spurious interrupt\n");
             return;
         }
     }
@@ -89,6 +94,8 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
         if (!(isr & (1 << 15))) {
             /* We have a spurious interrupt. Tell the master PIC */
             pic_acknowledge((uint8) (PIC_MASTER_OFFSET + 0x2));
+            interrupt_print_stack(&p, stack);
+            print(&p, "got spurious interrupt 2");
             return;
         }
     }

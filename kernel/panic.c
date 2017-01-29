@@ -4,6 +4,8 @@
 
 void panic(const struct interrupt_stack* stack,
         uint32 irq, const char* message) {
+    interrupt_disable();
+
     struct printer p;
     p.target = PRINT_FRAMEBUFFER;
     interrupt_print_stack(&p, stack);
