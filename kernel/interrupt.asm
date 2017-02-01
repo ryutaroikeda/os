@@ -61,30 +61,50 @@ interrupt_handler_with_error_code 14
 ; coprocessor fault
 interrupt_handler_without_error_code 16
 
+; system timer
 interrupt_handler_without_error_code 32
+; keyboard controller
 interrupt_handler_without_error_code 33
+; cascaded signals from irq 8 - 15
+interrupt_handler_without_error_code 34
+; serial port controller for serial port 2
+interrupt_handler_without_error_code 35
+; serial port controller for serial port 1
+interrupt_handler_without_error_code 36
+; parallel port 2 and 3 or sound card
+interrupt_handler_without_error_code 37
+; floppy disk
+interrupt_handler_without_error_code 38
+; parallel port 1
 interrupt_handler_without_error_code 39
+; real time clock
+interrupt_handler_without_error_code 40
+; advanced configuration and power interface
+interrupt_handler_without_error_code 41
+; available for peripherals
+interrupt_handler_without_error_code 42
+; available for peripherals
+interrupt_handler_without_error_code 43
+; mouse
+interrupt_handler_without_error_code 44
+; fpu
+interrupt_handler_without_error_code 45
+; primary ATA channel
+interrupt_handler_without_error_code 46
+; secondary ATA channel
+interrupt_handler_without_error_code 47
 
 ; The number of registers pushed by pushad
-REGISTER_NUM equ 8 + 5
+REGISTER_NUM equ 8
 
 global common_interrupt_handler
 
 common_interrupt_handler:
-    pushad
-    ; do we need to do this?
-    push ss
-    push ds
-    push es
-    push fs
-    push gs
+    ; try disabling interrupts. Maybe we should be using an interrupt handler
+    ; instead of a trap handler?
+    cli
 
-    mov ax, 0x10
-    mov ss, ax
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
+    pushad
 
     ; Make new call frame
     mov ebp, esp
@@ -105,12 +125,6 @@ common_interrupt_handler:
 
     ; Clear arguments
     add esp, 2 * 4
-    
-    pop gs
-    pop fs
-    pop es
-    pop ds
-    pop ss
 
     popad
 
@@ -120,6 +134,11 @@ common_interrupt_handler:
     ; restore.
     add esp, 8
 
+    ; enable interrupts
+    sti
+
+    ; what happens here?
+    
     ; Return to the code that triggered the interrupt.
     ; iret will restore eflags by popping it.
     iret

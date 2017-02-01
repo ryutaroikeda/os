@@ -1,6 +1,7 @@
 #include "kernel/integer.h"
 #include "pic.h"
 #include "port.h"
+#include "kernel/print.h"
 
 /**
  * PIC stands for programmable interrupt controller.
@@ -83,7 +84,6 @@ void pic_remap(void) {
  * Acknowledge an interrupt from master PIC or slave PIC after handling. We
  * won't get new interrupts until we acknolwedge (also called
  * end-of-interrupt).
- * @param interrupt
  */
 void pic_acknowledge(uint8 irq) {
     if ((irq < PIC_MASTER_OFFSET) || (PIC_SLAVE_END < irq)) {
@@ -126,7 +126,9 @@ void pic_set_all_mask() {
 
 void pic_unset_mask(uint8 irq) {
     if ((irq < PIC_MASTER_OFFSET) || (PIC_SLAVE_END < irq)) {
-        /* Shouldn't happen. */
+        struct printer p;
+        p.target = PRINT_FRAMEBUFFER;
+        print(&p, "invalid irq %u\n", &irq);
         return;
     }
     Port port;
@@ -137,6 +139,7 @@ void pic_unset_mask(uint8 irq) {
         port = PIC_MASTER_PORT;
         irq = (uint8) (irq - PIC_MASTER_OFFSET);
     }
+    // is this the right port?
     uint8 value = (uint8) (port_byte_in(port) & ~(1 << irq));
     port_byte_out((uint8)PIC_DATA(port), value);
 }

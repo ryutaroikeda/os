@@ -65,8 +65,8 @@ void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
 }
 
 void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
-    struct printer p;
-    p.target = PRINT_FRAMEBUFFER;
+    //struct printer p;
+    //p.target = PRINT_FRAMEBUFFER;
 
     if (INTERRUPT_DIVIDE_BY_ZERO == irq) {
         panic(stack, irq, "division by zero");
@@ -77,37 +77,43 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
     if (INTERRUPT_GENERAL_PROTECTION == irq) {
         panic(stack, irq, "general protection fault");
     }
+    // causes gpf, maybe because we don't initialize the timer
+    // gpf happens without this
+    /*
     if (PIC_MASTER_OFFSET + 0x0 == irq) {
         print(&p, "timer chip\n");
         pic_acknowledge((uint8) irq);
         return;
     }
+    */
+    /*
     if (PIC_MASTER_OFFSET + 0x1 == irq) {
         print(&p, "keyboard\n");
         pic_acknowledge((uint8) irq);
         return;
     }
     if (PIC_MASTER_OFFSET + 0x7 == irq) {
-        /* Is this spurious? */
+        // Is this spurious? 
         uint16 isr = pic_get_in_service_register();
         if (!(isr & (1 << 7))) {
-            /* We have a spurious interrupt. Don't acknowledge. */
+            // We have a spurious interrupt. Don't acknowledge.
             interrupt_print_stack(&p, stack);
             print(&p, "got spurious interrupt\n");
             return;
         }
     }
     if (PIC_SLAVE_OFFSET + 0x7 == irq) {
-        /* Is this spurious? */
+        // Is this spurious?
         uint16 isr = pic_get_in_service_register();
         if (!(isr & (1 << 15))) {
-            /* We have a spurious interrupt. Tell the master PIC */
+            // We have a spurious interrupt. Tell the master PIC
             pic_acknowledge((uint8) (PIC_MASTER_OFFSET + 0x2));
             interrupt_print_stack(&p, stack);
             print(&p, "got spurious interrupt 2");
             return;
         }
     }
+    */
 
     panic(stack, irq, "unknown interrupt");
 }
@@ -175,6 +181,49 @@ void interrupt_initialize(struct printer* printer) {
             INTERRUPT_PRIVILEGE_KERNEL);
     interrupt_set_descriptor(&idt[33],
             (uint32)&interrupt_handler_33, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[34],
+            (uint32)&interrupt_handler_34, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[35],
+            (uint32)&interrupt_handler_35, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[36],
+            (uint32)&interrupt_handler_36, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[37],
+            (uint32)&interrupt_handler_37, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[38],
+            (uint32)&interrupt_handler_38, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[39],
+            (uint32)&interrupt_handler_39, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+
+    interrupt_set_descriptor(&idt[40],
+            (uint32)&interrupt_handler_40, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[41],
+            (uint32)&interrupt_handler_41, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[42],
+            (uint32)&interrupt_handler_42, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[43],
+            (uint32)&interrupt_handler_43, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[44],
+            (uint32)&interrupt_handler_44, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[45],
+            (uint32)&interrupt_handler_45, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[46],
+            (uint32)&interrupt_handler_46, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[47],
+            (uint32)&interrupt_handler_47, GDT_CODE_SEGMENT,
             INTERRUPT_PRIVILEGE_KERNEL);
 
     table_info.limit = (sizeof(idt) / sizeof(idt[0])) - 1;
