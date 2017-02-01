@@ -32,15 +32,16 @@ void main(void) {
     print(logger, "remapping PIC\n");
     pic_remap();
     pic_set_all_mask();
-    //pic_unset_mask(PIC_MASTER_PORT + 0x0);
-    pic_unset_mask(PIC_MASTER_PORT + 0x1);
-    //pic_unset_mask(PIC_MASTER_PORT + 0x2);
-    //pic_unset_mask(PIC_SLAVE_PORT);
 
     interrupt_initialize(logger);
 
     //print(logger, "enabling interrupt\n");
     interrupt_enable();
+
+    //pic_unset_mask(PIC_MASTER_PORT + 0x0);
+    pic_unset_mask(PIC_MASTER_PORT + 0x1);
+    //pic_unset_mask(PIC_MASTER_PORT + 0x2);
+    //pic_unset_mask(PIC_SLAVE_PORT);
 /*
     int y = 0;
     int x = 1 / y;

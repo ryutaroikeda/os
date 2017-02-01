@@ -109,14 +109,14 @@ void pic_set_mask(uint8 irq) {
     }
     Port port;
     if (PIC_SLAVE_OFFSET <= irq) {
-        port = PIC_SLAVE_PORT;
+        port = PIC_DATA(PIC_SLAVE_PORT);
         irq = (uint8) (irq - PIC_SLAVE_OFFSET);
     } else {
-        port = PIC_MASTER_PORT;
+        port = PIC_DATA(PIC_MASTER_PORT);
         irq = (uint8) (irq - PIC_MASTER_OFFSET);
     }
     uint8 value = (uint8) (port_byte_in(port) | (1 << irq));
-    port_byte_out((uint8)PIC_DATA(port), value);
+    port_byte_out((uint8)port, value);
 }
 
 void pic_set_all_mask() {
@@ -133,15 +133,14 @@ void pic_unset_mask(uint8 irq) {
     }
     Port port;
     if (PIC_SLAVE_OFFSET <= irq) {
-        port = PIC_SLAVE_PORT;
+        port = PIC_DATA(PIC_SLAVE_PORT);
         irq = (uint8) (irq - PIC_SLAVE_OFFSET);
     } else {
-        port = PIC_MASTER_PORT;
+        port = PIC_DATA(PIC_MASTER_PORT);
         irq = (uint8) (irq - PIC_MASTER_OFFSET);
     }
-    // is this the right port?
     uint8 value = (uint8) (port_byte_in(port) & ~(1 << irq));
-    port_byte_out((uint8)PIC_DATA(port), value);
+    port_byte_out((uint8)port, value);
 }
 
 static uint16 get_interrupt_register(uint8 ocw3) {
