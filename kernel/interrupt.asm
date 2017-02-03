@@ -102,7 +102,7 @@ global common_interrupt_handler
 common_interrupt_handler:
     ; try disabling interrupts. Maybe we should be using an interrupt handler
     ; instead of a trap handler?
-    cli
+    ;cli
 
     pushad
 
@@ -135,7 +135,7 @@ common_interrupt_handler:
     add esp, 8
 
     ; enable interrupts
-    sti
+    ;sti
 
     ; what happens here?
     
@@ -145,11 +145,16 @@ common_interrupt_handler:
 
 global interrupt_load_descriptor_table
 
-; @param [esp + 4] The address of the first entry in the interrupt
+; @param [ebp + 8] The address of the first entry in the interrupt
 ; descriptor table.
 interrupt_load_descriptor_table:
-    mov eax, [esp + 4]
+    push ebp
+    mov ebp, esp
+    push eax
+    mov eax, [ebp + 8]
     lidt [eax]
+    pop eax
+    pop ebp
     ret
 
 global interrupt_enable
@@ -162,19 +167,9 @@ interrupt_disable:
     cli
     ret
 
-global interrupt_0
-
-interrupt_0:
-    int 0
-    ret
-
-global interrupt_6
-interrupt_6:
-    int 6
-    ret
-
-global interrupt_39
-interrupt_39:
-    int 39
+global interrupt
+; @param [esp + 4] The irq to trigger
+interrupt:
+    int 3
     ret
 

@@ -1,5 +1,6 @@
 #include "drivers/framebuffer.h"
 #include "drivers/pic.h"
+#include "drivers/pit.h"
 #include "drivers/serial.h"
 #include "integer.h"
 #include "interrupt.h"
@@ -33,23 +34,23 @@ void main(void) {
     pic_remap();
     pic_set_all_mask();
 
-    interrupt_initialize(logger);
+    // configure timer
+    pit_initialize();
 
-    //print(logger, "enabling interrupt\n");
+    print(logger, "initializing interrupt handlers\n");
+    interrupt_initialize(logger);
+    print(logger, "enabling interrupt\n");
     interrupt_enable();
 
-    //pic_unset_mask(PIC_MASTER_PORT + 0x0);
-    pic_unset_mask(PIC_MASTER_PORT + 0x1);
-    //pic_unset_mask(PIC_MASTER_PORT + 0x2);
-    //pic_unset_mask(PIC_SLAVE_PORT);
-/*
-    int y = 0;
-    int x = 1 / y;
-    print(logger, "%u", &x);
-    */
+    pic_unset_mask(PIC_MASTER_OFFSET + 0x0);
+    //pic_unset_mask(PIC_MASTER_OFFSET + 0x1);
+    //pic_unset_mask(PIC_MASTER_OFFSET + 0x2);
+    //pic_unset_mask(PIC_SLAVE_OFFSET);
+
+    //interrupt(1);
+
     print(logger, "exiting kernel\n");
     while (1) {
-        // general protection fault happens here
     }
 }
 

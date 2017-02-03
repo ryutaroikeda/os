@@ -62,18 +62,22 @@ void pic_remap(void) {
             ICW_1_NEED_ICW_4 | ICW_1_INITIALIZE);
     port_byte_out(PIC_COMMAND(PIC_SLAVE_PORT),
             ICW_1_NEED_ICW_4 | ICW_1_INITIALIZE);
+    //port_wait();
 
     port_byte_out(PIC_DATA(PIC_MASTER_PORT), master_offset);
     port_byte_out(PIC_DATA(PIC_SLAVE_PORT), slave_offset);
+    //port_wait();
 
     /* Tell master there's a slave at IRQ 2.
      * The position of the bit corresponds to the IRQ (0000 0100) */
     port_byte_out(PIC_DATA(PIC_MASTER_PORT), 0x04);
     /* Tell slave its cascade identity (IRQ 2). */
     port_byte_out(PIC_DATA(PIC_SLAVE_PORT), 2);
+    //port_wait();
 
     port_byte_out(PIC_DATA(PIC_MASTER_PORT), ICW_4_8086);
     port_byte_out(PIC_DATA(PIC_SLAVE_PORT), ICW_4_8086);
+    //port_wait();
 
     /* Restore data ports. */
     port_byte_out(PIC_DATA(PIC_MASTER_PORT), master_data);
@@ -101,7 +105,6 @@ void pic_acknowledge(uint8 irq) {
  * The PIC has an 8 bit register called the interrupt mask register IMR. 
  * Each bit corresponds to an irq. When the bit is set, the irq is disabled.
  */
-
 void pic_set_mask(uint8 irq) {
     if ((irq < PIC_MASTER_OFFSET) || (PIC_SLAVE_END < irq)) {
         /* This shouldn't happen. */

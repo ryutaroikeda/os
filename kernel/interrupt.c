@@ -77,12 +77,10 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
     if (INTERRUPT_GENERAL_PROTECTION == irq) {
         panic(stack, irq, "general protection fault");
     }
-    // causes gpf, maybe because we don't initialize the timer
-    // gpf happens without this
     /*
     if (PIC_MASTER_OFFSET + 0x0 == irq) {
         print(&p, "timer chip\n");
-        pic_acknowledge((uint8) irq);
+    //    pic_acknowledge((uint8) irq);
         return;
     }
     */

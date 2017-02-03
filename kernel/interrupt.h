@@ -82,9 +82,7 @@ extern void* interrupt_handler_45;
 extern void* interrupt_handler_46;
 extern void* interrupt_handler_47;
 
-void interrupt_0(void);
-void interrupt_6(void);
-void interrupt_39(void);
+void interrupt(uint32 irq);
 
 #endif
 
