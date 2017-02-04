@@ -110,9 +110,14 @@ static int print_byte(struct printer* printer, unsigned char value) {
     return printer->buffer_offset - initial_offset;
 }
 
-//static int print_hex(struct printer* printer, uint32 value) {
-
-//}
+static int print_hex(struct printer* printer, uint32 value) {
+    int result = 0;
+    result += print_byte(printer, (uint8) ((value >> 24) & 0xff));
+    result += print_byte(printer, (uint8) ((value >> 16) & 0xff));
+    result += print_byte(printer, (uint8) ((value >> 8) & 0xff));
+    result += print_byte(printer, (uint8) (value & 0xff));
+    return result;
+}
 
 static int print_int32(struct printer* printer, int32 value) {
     if (value < 0) {
@@ -194,6 +199,8 @@ int print_n(struct printer* printer, const char* format,
             print_float(printer, *(const float*)args[arg_num].value);
         } else if (FORMAT_BOOL == format[in]) {
             print_bool(printer, *(const uint32*)args[arg_num].value);
+        } else if (FORMAT_HEX == format[in]) {
+            print_hex(printer, *(const uint32*)args[arg_num].value);
         } else {
             /** this should not happen */
             return -1;

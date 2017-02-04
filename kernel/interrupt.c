@@ -35,7 +35,7 @@ static uint8 pack_attributes(
 void interrupt_print_stack(struct printer* p,
         const struct interrupt_stack* stack) {
     print(p, "error_code: %u\n", &stack->error_code);
-    print(p, "eip: %u\n", &stack->eip);
+    print(p, "eip: %x\n", &stack->eip);
     print(p, "cs: %u\n", &stack->cs);
     print(p, "eflags: %u\n", &stack->eflags);
 }
@@ -43,7 +43,7 @@ void interrupt_print_stack(struct printer* p,
 void interrupt_print_descriptor(struct printer* p,
         const struct interrupt_descriptor* desc) {
     uint32 offset = (uint32)((desc->offset_high << 16) | desc->offset_low);
-    print(p, "offset: %u\n", &offset);
+    print(p, "offset: %x\n", &offset);
     uint32 segment_selector = desc->segment_selector;
     print(p, "segment_selector: %u\n", &segment_selector);
     uint32 reserved = desc->reserved;
