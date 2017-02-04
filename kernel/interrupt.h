@@ -86,6 +86,7 @@ extern void* interrupt_handler_44;
 extern void* interrupt_handler_45;
 extern void* interrupt_handler_46;
 extern void* interrupt_handler_47;
+extern void* interrupt_handler_255;
 
 void interrupt(uint32 irq);
 
@@ -122,6 +123,7 @@ void interrupt_44(void);
 void interrupt_45(void);
 void interrupt_46(void);
 void interrupt_47(void);
+void interrupt_255(void);
 
 #endif
 

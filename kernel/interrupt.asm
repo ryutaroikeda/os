@@ -26,6 +26,7 @@ interrupt_handler_%1:
 
 %endmacro
 
+; fake interrupts for testing
 %macro interrupt 1
 global interrupt_%1
 interrupt_%1:
@@ -33,17 +34,17 @@ interrupt_%1:
     ret
 %endmacro
 
-global interrupt_handler_32
-interrupt_handler_32:
-	push ax
-	push dx
-	mov al, 0x20
-	mov dx, 0x20
-	out dx, al
-	pop ax
-	pop dx
-	add esp, 4
-	iret
+;global interrupt_handler_32
+;interrupt_handler_32:
+;	push ax
+;	push dx
+;	mov al, 0x20
+;	mov dx, 0x20
+;	out dx, al
+;	pop ax
+;	pop dx
+;	add esp, 4
+;	iret
 
 ; fault -> eip points to instruction that caused the exception
 ; trap -> eip points to instruction dynamically after offending instruction
@@ -83,7 +84,7 @@ interrupt_handler_without_error_code 16
 interrupt_handler_with_error_code 15
 
 ; system timer
-;interrupt_handler_without_error_code 32
+interrupt_handler_without_error_code 32
 ; keyboard controller
 interrupt_handler_without_error_code 33
 ; cascaded signals from irq 8 - 15
@@ -114,6 +115,8 @@ interrupt_handler_without_error_code 45
 interrupt_handler_without_error_code 46
 ; secondary ATA channel
 interrupt_handler_without_error_code 47
+; interrupt doesn't exist
+interrupt_handler_without_error_code 255
 
 interrupt 0
 interrupt 1
@@ -130,7 +133,6 @@ interrupt 11
 interrupt 12
 interrupt 13
 interrupt 14
-interrupt 15
 interrupt 16
 interrupt 32
 interrupt 33
@@ -148,6 +150,7 @@ interrupt 44
 interrupt 45
 interrupt 46
 interrupt 47
+interrupt 255
 
 ; The number of registers pushed by pushad
 REGISTER_NUM equ (8 + 5)

@@ -2,6 +2,7 @@
 #include "drivers/pic.h"
 #include "drivers/pit.h"
 #include "drivers/serial.h"
+#include "idle.h"
 #include "integer.h"
 #include "interrupt.h"
 #include "print.h"
@@ -31,26 +32,28 @@ void main(void) {
 
     print(logger, "starting kernel\n");
     print(logger, "remapping PIC\n");
-    pic_remap();
-    pic_set_all_mask();
+    //pic_remap();
+    //pic_set_all_mask();
 
     // configure timer
-    pit_initialize();
+    //pit_initialize();
 
     print(logger, "initializing interrupt handlers\n");
     interrupt_initialize(logger);
-    print(logger, "enabling interrupt\n");
-    interrupt_enable();
 
-    pic_unset_mask(PIC_MASTER_OFFSET);
+    print(logger, "enabling interrupt\n");
+    //interrupt_enable();
+
+    //pic_unset_mask(PIC_MASTER_OFFSET);
     //pic_unset_mask(PIC_MASTER_OFFSET + 0x1);
     //pic_unset_mask(PIC_MASTER_OFFSET + 0x2);
     //pic_unset_mask(PIC_SLAVE_OFFSET);
 
-    //interrupt(32);
+    interrupt(32);
 
     print(logger, "exiting kernel\n");
     while (1) {
+        idle();
     }
 }
 

@@ -8,7 +8,8 @@
 enum {
     INTERRUPT_DIVIDE_BY_ZERO = 0x0,
     INTERRUPT_INVALID_OPCODE = 0x6,
-    INTERRUPT_GENERAL_PROTECTION = 0xd
+    INTERRUPT_GENERAL_PROTECTION = 0xd,
+    INTERRUPT_TIMER = 0x20
 };
 
 enum gate_type {
@@ -24,11 +25,11 @@ static struct interrupt_descriptor idt[INTERRUPT_GATEWAY_SIZE];
 static struct interrupt_descriptor_table table_info;
 
 struct interrupt_segment_registers {
-    uint16 gs;
-    uint16 fs;
-    uint16 es;
-    uint16 ds;
-    uint16 ss;
+    uint32 gs;
+    uint32 fs;
+    uint32 es;
+    uint32 ds;
+    uint32 ss;
 } __attribute__((packed));
 
 static uint8 pack_attributes(
@@ -65,6 +66,15 @@ void interrupt_print_descriptor(struct printer* p,
     print(p, "privilege level: %s\n", privilege);
     uint32 handler_present = (desc->attributes >> 7) & 1;
     print(p, "handler present: %l\n", &handler_present);
+    char* type = "unknown";
+    if (INTERRUPT_GATE_32 == (desc->attributes & 0xf)) {
+        type = "interrupt 32";
+    } else if (TRAP_GATE_32 == (desc->attributes & 0xf)) {
+        type = "trap 32";
+    }
+    print(p, "type: %s\n", type);
+    uint32 storage_segment = (desc->attributes >> 4) & 1;
+    print(p, "storage segment: %u\n", &storage_segment);
 }
 
 void interrupt_print_packed_descriptor(struct printer* printer,
@@ -82,11 +92,11 @@ void interrupt_print_packed_descriptor(struct printer* printer,
 
 static void interrupt_print_segment_registers(struct printer* p,
         const struct interrupt_segment_registers* registers) {
-    print(p, "ss: %t\n", &registers->ss);
-    print(p, "ds: %t\n", &registers->ds);
-    print(p, "es: %t\n", &registers->es);
-    print(p, "fs: %t\n", &registers->fs);
-    print(p, "gs: %t\n", &registers->gs);
+    print(p, "ss: %u\n", &registers->ss);
+    print(p, "ds: %u\n", &registers->ds);
+    print(p, "es: %u\n", &registers->es);
+    print(p, "fs: %u\n", &registers->fs);
+    print(p, "gs: %u\n", &registers->gs);
 }
 
 void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
@@ -120,6 +130,7 @@ void interrupt_handler(const struct interrupt_segment_registers* registers,
             } else if (table & 1) {
                 print(&p, "IDT index %u\n", &index);
                 interrupt_print_descriptor(&p, &idt[index]);
+                interrupt_print_packed_descriptor(&p, &idt[index]);
             } else if (2 == table) {
                 print(&p, "LDT index %u\n", &index);
             }
@@ -127,6 +138,13 @@ void interrupt_handler(const struct interrupt_segment_registers* registers,
         interrupt_print_segment_registers(&p, registers);
         panic(stack, irq, "general protection fault");
     }
+    /*
+    if (INTERRUPT_TIMER == irq) {
+        pic_acknowledge((uint8)irq);
+        return;
+    }
+    */
+
     /*
     if (PIC_MASTER_OFFSET + 0x0 == irq) {
         print(&p, "timer chip\n");
@@ -276,8 +294,11 @@ void interrupt_initialize(struct printer* printer) {
     interrupt_set_descriptor(&idt[47],
             (uint32)&interrupt_handler_47, GDT_CODE_SEGMENT,
             INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[255],
+            (uint32)&interrupt_handler_255, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
 
-    table_info.limit = (sizeof(idt) / sizeof(idt[0])) - 1;
+    table_info.limit = sizeof(idt) - 1;
     table_info.base = idt;
     interrupt_load_descriptor_table(&table_info);
     print(printer, "table info: .limit = %t .base = %t\n",
@@ -333,9 +354,6 @@ void interrupt(uint32 irq) {
         case 14:
             interrupt_14();
             break;
-        case 15:
-            interrupt_15();
-            break;
         case 16:
             interrupt_16();
             break;
@@ -388,7 +406,7 @@ void interrupt(uint32 irq) {
             interrupt_47();
             break;
         default:
-            interrupt_15();
+            interrupt_255();
             break;
     }
 }
