@@ -5,8 +5,9 @@
 
 struct interrupt_stack;
 
-void panic(const struct interrupt_stack*, uint32 irq,
-        const char* message);
+void panic(const char* message);
 
+void panic_with_stack(const char* message,
+        const struct interrupt_stack* stack, uint32 irq);
 #endif
 

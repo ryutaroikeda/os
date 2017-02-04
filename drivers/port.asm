@@ -35,14 +35,9 @@ port_byte_in:
 global port_wait:
 
 ; Do a dummy write to port 0x80 to "flush" the bus
-; Port 0x80 is not available on qemu-system-i386 version 2.5 so writing to it
-; is not an option. Try something I don't understand.
 port_wait:
-    ; this doesn't work
-    ;mov al, 0
-    ;mov dx, 0x80
-    ;out dx, al
-    pushad
-    popad
+    mov al, 0
+    mov dx, 0x80
+    out dx, al
     ret
 

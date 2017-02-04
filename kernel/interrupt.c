@@ -116,10 +116,10 @@ void interrupt_handler(const struct interrupt_segment_registers* registers,
     p.target = PRINT_FRAMEBUFFER;
 
     if (INTERRUPT_DIVIDE_BY_ZERO == irq) {
-        panic(stack, irq, "division by zero");
+        panic_with_stack("division by zero", stack, irq);
     }
     if (INTERRUPT_INVALID_OPCODE == irq) {
-        panic(stack, irq, "invalid opcode");
+        panic_with_stack("invalid opcode", stack, irq);
     }
     if (INTERRUPT_GENERAL_PROTECTION == irq) {
         if (stack->error_code) {
@@ -136,28 +136,18 @@ void interrupt_handler(const struct interrupt_segment_registers* registers,
             }
         }
         interrupt_print_segment_registers(&p, registers);
-        panic(stack, irq, "general protection fault");
+        panic_with_stack("general protection fault", stack, irq);
     }
-    /*
     if (INTERRUPT_TIMER == irq) {
         pic_acknowledge((uint8)irq);
         return;
     }
-    */
-
-    /*
-    if (PIC_MASTER_OFFSET + 0x0 == irq) {
-        print(&p, "timer chip\n");
-    //    pic_acknowledge((uint8) irq);
-        return;
-    }
-    */
-    /*
     if (PIC_MASTER_OFFSET + 0x1 == irq) {
         print(&p, "keyboard\n");
         pic_acknowledge((uint8) irq);
         return;
     }
+    /*
     if (PIC_MASTER_OFFSET + 0x7 == irq) {
         // Is this spurious? 
         uint16 isr = pic_get_in_service_register();
@@ -181,7 +171,7 @@ void interrupt_handler(const struct interrupt_segment_registers* registers,
     }
     */
 
-    panic(stack, irq, "unknown interrupt");
+    panic_with_stack("unknown interrupt", stack, irq);
 }
 
 void interrupt_initialize(struct printer* printer) {
