@@ -44,7 +44,7 @@ bin/hextobin: src/hextobin.cpp
 %.dis: %.bin
 	ndisasm -b 32 $< > $@
 
-%.dump: %.o
+%.dump: kernel/%.o
 	objdump -m i386 -d $< > $@
 
 kernel.p:

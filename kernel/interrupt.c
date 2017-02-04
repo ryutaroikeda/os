@@ -12,7 +12,8 @@ enum {
 };
 
 enum gate_type {
-    TRAP_GATE_32 = 0xf
+    TRAP_GATE_32 = 0xf,
+    INTERRUPT_GATE_32 = 0xe
 };
 
 enum {
@@ -21,6 +22,14 @@ enum {
 
 static struct interrupt_descriptor idt[INTERRUPT_GATEWAY_SIZE];
 static struct interrupt_descriptor_table table_info;
+
+struct interrupt_segment_registers {
+    uint16 gs;
+    uint16 fs;
+    uint16 es;
+    uint16 ds;
+    uint16 ss;
+} __attribute__((packed));
 
 static uint8 pack_attributes(
         enum gate_type type, int storage_segment,
@@ -48,7 +57,13 @@ void interrupt_print_descriptor(struct printer* p,
     print(p, "segment_selector: %u\n", &segment_selector);
     uint32 reserved = desc->reserved;
     print(p, "reserved: %l\n", &reserved);
-    uint32 handler_present = desc->attributes & (1 << 7);
+    uint32 level = (desc->attributes >> 5) & 3;
+    char* privilege = "unknown";
+    if (INTERRUPT_PRIVILEGE_KERNEL == level) {
+        privilege = "kernel";
+    }
+    print(p, "privilege level: %s\n", privilege);
+    uint32 handler_present = (desc->attributes >> 7) & 1;
     print(p, "handler present: %l\n", &handler_present);
 }
 
@@ -65,6 +80,15 @@ void interrupt_print_packed_descriptor(struct printer* printer,
     print(printer, "\n");
 }
 
+static void interrupt_print_segment_registers(struct printer* p,
+        const struct interrupt_segment_registers* registers) {
+    print(p, "ss: %t\n", &registers->ss);
+    print(p, "ds: %t\n", &registers->ds);
+    print(p, "es: %t\n", &registers->es);
+    print(p, "fs: %t\n", &registers->fs);
+    print(p, "gs: %t\n", &registers->gs);
+}
+
 void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
         uint32 offset, uint16 segment_selector,
         enum privilege_level privilege_level) {
@@ -73,10 +97,11 @@ void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
     descriptor->segment_selector = segment_selector;
     descriptor->reserved = 0;
     descriptor->attributes =
-        pack_attributes(TRAP_GATE_32, 0, privilege_level, 1);
+        pack_attributes(INTERRUPT_GATE_32, 0, privilege_level, 1);
 }
 
-void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
+void interrupt_handler(const struct interrupt_segment_registers* registers,
+        const struct interrupt_stack* stack, uint32 irq) {
     struct printer p;
     p.target = PRINT_FRAMEBUFFER;
 
@@ -99,6 +124,7 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
                 print(&p, "LDT index %u\n", &index);
             }
         }
+        interrupt_print_segment_registers(&p, registers);
         panic(stack, irq, "general protection fault");
     }
     /*

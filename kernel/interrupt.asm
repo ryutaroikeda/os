@@ -33,6 +33,18 @@ interrupt_%1:
     ret
 %endmacro
 
+global interrupt_handler_32
+interrupt_handler_32:
+	push ax
+	push dx
+	mov al, 0x20
+	mov dx, 0x20
+	out dx, al
+	pop ax
+	pop dx
+	add esp, 4
+	iret
+
 ; fault -> eip points to instruction that caused the exception
 ; trap -> eip points to instruction dynamically after offending instruction
 ; abort -> cannot locate cause of exception, severe error
@@ -71,7 +83,7 @@ interrupt_handler_without_error_code 16
 interrupt_handler_with_error_code 15
 
 ; system timer
-interrupt_handler_without_error_code 32
+;interrupt_handler_without_error_code 32
 ; keyboard controller
 interrupt_handler_without_error_code 33
 ; cascaded signals from irq 8 - 15
@@ -138,36 +150,47 @@ interrupt 46
 interrupt 47
 
 ; The number of registers pushed by pushad
-REGISTER_NUM equ 8
+REGISTER_NUM equ (8 + 5)
 
 global common_interrupt_handler
 
 common_interrupt_handler:
-    ; try disabling interrupts. Maybe we should be using an interrupt handler
-    ; instead of a trap handler?
-    ;cli
-
     pushad
+
+	push ss
+	push ds
+	push es
+	push fs
+	push gs
 
     ; Make new call frame
     mov ebp, esp
 
     ; Push the irq
-    mov ebx, [ebp + (REGISTER_NUM * 4)]
+    mov ebx, [ebp + REGISTER_NUM * 4]
     push ebx
 
-    ; Push pointer to interrupt stack. Assume ss is code segment with base 0
-    ; This should be safer than pushing registers into C because the compiler
-    ; might corrupt the stack.
+    ; Push pointer to interrupt stack.
+	; This should be safer than pushing registers into C because otherwise the
+	; compiler might corrupt the stack.
     mov ebx, ebp
     add ebx, (REGISTER_NUM + 1) * 4
     push ebx
+
+	; Push pointer to segment registers
+	push ebp
 
     ; This is defined in kernel/interrupt.c
     call interrupt_handler
 
     ; Clear arguments
-    add esp, 2 * 4
+    add esp, 3 * 4
+
+	pop gs
+	pop fs
+	pop es
+	pop ds
+	pop ss
 
     popad
 
@@ -177,11 +200,6 @@ common_interrupt_handler:
     ; restore.
     add esp, 8
 
-    ; enable interrupts
-    ;sti
-
-    ; what happens here?
-    
     ; Return to the code that triggered the interrupt.
     ; iret will restore eflags by popping it.
     iret

@@ -4,6 +4,7 @@
 #include "integer.h"
 
 struct printer;
+struct interrupt_segment_registers;
 
 enum privilege_level {
     INTERRUPT_PRIVILEGE_KERNEL = 0
@@ -38,7 +39,8 @@ void interrupt_set_descriptor(struct interrupt_descriptor*,
 
 void interrupt_load_descriptor_table(struct interrupt_descriptor_table*);
 
-void interrupt_handler(const struct interrupt_stack*, uint32 irq);
+void interrupt_handler(const struct interrupt_segment_registers*,
+    const struct interrupt_stack*, uint32 irq);
 
 void interrupt_print_descriptor(struct printer*,
         const struct interrupt_descriptor*);
