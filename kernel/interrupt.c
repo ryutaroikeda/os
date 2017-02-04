@@ -65,8 +65,8 @@ void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
 }
 
 void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
-    //struct printer p;
-    //p.target = PRINT_FRAMEBUFFER;
+    struct printer p;
+    p.target = PRINT_FRAMEBUFFER;
 
     if (INTERRUPT_DIVIDE_BY_ZERO == irq) {
         panic(stack, irq, "division by zero");
@@ -75,6 +75,18 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
         panic(stack, irq, "invalid opcode");
     }
     if (INTERRUPT_GENERAL_PROTECTION == irq) {
+        if (stack->error_code) {
+            uint8 table = (stack->error_code >> 1) & 0x3;
+            if (0 == table) {
+                print(&p, "GDT index ");
+            } else if (table & 1) {
+                print(&p, "IDT index ");
+            } else if (2 == table) {
+                print(&p, "LDT index ");
+            }
+            uint32 index = (stack->error_code >> 3) & 0x1fff;
+            print(&p, "%u\n", &index);
+        }
         panic(stack, irq, "general protection fault");
     }
     /*
@@ -170,6 +182,9 @@ void interrupt_initialize(struct printer* printer) {
     interrupt_set_descriptor(&idt[14],
             (uint32)&interrupt_handler_14, GDT_CODE_SEGMENT,
             INTERRUPT_PRIVILEGE_KERNEL);
+    interrupt_set_descriptor(&idt[15],
+            (uint32)&interrupt_handler_15, GDT_CODE_SEGMENT,
+            INTERRUPT_PRIVILEGE_KERNEL);
     interrupt_set_descriptor(&idt[16],
             (uint32)&interrupt_handler_16, GDT_CODE_SEGMENT,
             INTERRUPT_PRIVILEGE_KERNEL);
@@ -231,5 +246,112 @@ void interrupt_initialize(struct printer* printer) {
             &table_info.limit, &table_info.base);
     interrupt_print_descriptor(printer, &idt[0]);
 
+}
+
+void interrupt(uint32 irq) {
+    switch (irq) {
+        case 0:
+            interrupt_0();
+            break;
+        case 1:
+            interrupt_1();
+            break;
+        case 2:
+            interrupt_2();
+            break;
+        case 3:
+            interrupt_3();
+            break;
+        case 4:
+            interrupt_4();
+            break;
+        case 5:
+            interrupt_5();
+            break;
+        case 6:
+            interrupt_6();
+            break;
+        case 7:
+            interrupt_7();
+            break;
+        case 8:
+            interrupt_8();
+            break;
+        case 9:
+            interrupt_9();
+            break;
+        case 10:
+            interrupt_10();
+            break;
+        case 11:
+            interrupt_11();
+            break;
+        case 12:
+            interrupt_12();
+            break;
+        case 13:
+            interrupt_13();
+            break;
+        case 14:
+            interrupt_14();
+            break;
+        case 15:
+            interrupt_15();
+            break;
+        case 16:
+            interrupt_16();
+            break;
+        case 32:
+            interrupt_32();
+            break;
+        case 33:
+            interrupt_33();
+            break;
+        case 34:
+            interrupt_34();
+            break;
+        case 35:
+            interrupt_35();
+            break;
+        case 36:
+            interrupt_36();
+            break;
+        case 37:
+            interrupt_37();
+            break;
+        case 38:
+            interrupt_38();
+            break;
+        case 39:
+            interrupt_39();
+            break;
+        case 40:
+            interrupt_40();
+            break;
+        case 41:
+            interrupt_41();
+            break;
+        case 42:
+            interrupt_42();
+            break;
+        case 43:
+            interrupt_43();
+            break;
+        case 44:
+            interrupt_44();
+            break;
+        case 45:
+            interrupt_45();
+            break;
+        case 46:
+            interrupt_46();
+            break;
+        case 47:
+            interrupt_47();
+            break;
+        default:
+            interrupt_15();
+            break;
+    }
 }
 

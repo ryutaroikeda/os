@@ -26,6 +26,13 @@ interrupt_handler_%1:
 
 %endmacro
 
+%macro interrupt 1
+global interrupt_%1
+interrupt_%1:
+    int %1
+    ret
+%endmacro
+
 ; fault -> eip points to instruction that caused the exception
 ; trap -> eip points to instruction dynamically after offending instruction
 ; abort -> cannot locate cause of exception, severe error
@@ -60,6 +67,8 @@ interrupt_handler_with_error_code 13
 interrupt_handler_with_error_code 14
 ; coprocessor fault
 interrupt_handler_without_error_code 16
+; hopefully a programming error
+interrupt_handler_with_error_code 15
 
 ; system timer
 interrupt_handler_without_error_code 32
@@ -93,6 +102,40 @@ interrupt_handler_without_error_code 45
 interrupt_handler_without_error_code 46
 ; secondary ATA channel
 interrupt_handler_without_error_code 47
+
+interrupt 0
+interrupt 1
+interrupt 2
+interrupt 3
+interrupt 4
+interrupt 5
+interrupt 6
+interrupt 7
+interrupt 8
+interrupt 9
+interrupt 10
+interrupt 11
+interrupt 12
+interrupt 13
+interrupt 14
+interrupt 15
+interrupt 16
+interrupt 32
+interrupt 33
+interrupt 34
+interrupt 35
+interrupt 36
+interrupt 37
+interrupt 38
+interrupt 39
+interrupt 40
+interrupt 41
+interrupt 42
+interrupt 43
+interrupt 44
+interrupt 45
+interrupt 46
+interrupt 47
 
 ; The number of registers pushed by pushad
 REGISTER_NUM equ 8
@@ -165,11 +208,5 @@ interrupt_enable:
 global interrupt_disable
 interrupt_disable:
     cli
-    ret
-
-global interrupt
-; @param [esp + 4] The irq to trigger
-interrupt:
-    int 3
     ret
 

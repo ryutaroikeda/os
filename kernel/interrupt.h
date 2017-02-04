@@ -64,6 +64,7 @@ extern void* interrupt_handler_12;
 extern void* interrupt_handler_13;
 extern void* interrupt_handler_14;
 extern void* interrupt_handler_16;
+extern void* interrupt_handler_15;
 
 extern void* interrupt_handler_32;
 extern void* interrupt_handler_33;
@@ -83,6 +84,40 @@ extern void* interrupt_handler_46;
 extern void* interrupt_handler_47;
 
 void interrupt(uint32 irq);
+
+void interrupt_0(void);
+void interrupt_1(void);
+void interrupt_2(void);
+void interrupt_3(void);
+void interrupt_4(void);
+void interrupt_5(void);
+void interrupt_6(void);
+void interrupt_7(void);
+void interrupt_8(void);
+void interrupt_9(void);
+void interrupt_10(void);
+void interrupt_11(void);
+void interrupt_12(void);
+void interrupt_13(void);
+void interrupt_14(void);
+void interrupt_15(void);
+void interrupt_16(void);
+void interrupt_32(void);
+void interrupt_33(void);
+void interrupt_34(void);
+void interrupt_35(void);
+void interrupt_36(void);
+void interrupt_37(void);
+void interrupt_38(void);
+void interrupt_39(void);
+void interrupt_40(void);
+void interrupt_41(void);
+void interrupt_42(void);
+void interrupt_43(void);
+void interrupt_44(void);
+void interrupt_45(void);
+void interrupt_46(void);
+void interrupt_47(void);
 
 #endif
 
