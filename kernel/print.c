@@ -18,7 +18,9 @@ enum {
     FORMAT_BYTE = 'b',
     FORMAT_FLOAT = 'f',
     FORMAT_CHAR = 'c',
-    FORMAT_STRING = 's'
+    FORMAT_STRING = 's',
+    FORMAT_HEX = 'x',
+    FORMAT_BOOL = 'l'
 };
 
 enum {
@@ -71,7 +73,7 @@ static int print_uint16(struct printer* printer, uint16 value) {
     return printer->buffer_offset - initial_offset;
 }
 
-static int print_unsigned_int(struct printer* printer, unsigned int value) {
+static int print_uint32(struct printer* printer, uint32 value) {
     if (0 == value) {
         print_char(printer, '0');
         return 1;
@@ -108,12 +110,16 @@ static int print_byte(struct printer* printer, unsigned char value) {
     return printer->buffer_offset - initial_offset;
 }
 
-static int print_int(struct printer* printer, int value) {
+//static int print_hex(struct printer* printer, uint32 value) {
+
+//}
+
+static int print_int32(struct printer* printer, int32 value) {
     if (value < 0) {
         print_char(printer, '-');
         value *= -1;
     }
-    return print_unsigned_int(printer, (unsigned int) value);
+    return print_uint32(printer, (uint32) value);
 }
 
 static int print_string(struct printer* printer, const char* value) {
@@ -126,6 +132,14 @@ static int print_string(struct printer* printer, const char* value) {
     return printer->buffer_offset - initial_offset;
 }
 
+static int print_bool(struct printer* printer, uint32 value) {
+    char* result = "false";
+    if (value) {
+        result = "true";
+    }
+    return print_string(printer, result);
+}
+
 /**
  * @todo
  */
@@ -135,8 +149,8 @@ static int print_float(struct printer* printer, float value) {
         print_char(printer, '-');
         value *= -1.0f;
     }
-    int d = (int) value;
-    print_int(printer, d);
+    int d = (int32) value;
+    print_int32(printer, d);
     return printer->buffer_offset - initial_offset;
 }
 
@@ -163,10 +177,10 @@ int print_n(struct printer* printer, const char* format,
             return -1;
         }
         if (FORMAT_INT == format[in]) {
-            print_int(printer, *(const int*)args[arg_num].value);
+            print_int32(printer, *(const int32*)args[arg_num].value);
         } else if (FORMAT_UNSIGNED_INT == format[in]) {
-            print_unsigned_int(printer,
-                    *(const unsigned int*)args[arg_num].value);
+            print_uint32(printer,
+                    *(const uint32*)args[arg_num].value);
         } else if (FORMAT_UINT16 == format[in]) {
             print_uint16(printer, *(const uint16*)args[arg_num].value);
         } else if (FORMAT_BYTE == format[in]) {
@@ -178,6 +192,8 @@ int print_n(struct printer* printer, const char* format,
             print_char(printer, *(const char*)args[arg_num].value);
         } else if (FORMAT_FLOAT == format[in]) {
             print_float(printer, *(const float*)args[arg_num].value);
+        } else if (FORMAT_BOOL == format[in]) {
+            print_bool(printer, *(const uint32*)args[arg_num].value);
         } else {
             /** this should not happen */
             return -1;

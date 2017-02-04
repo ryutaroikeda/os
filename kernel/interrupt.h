@@ -10,17 +10,17 @@ enum privilege_level {
 };
 
 struct interrupt_descriptor {
-    unsigned short offset_low;
-    unsigned short segment_selector;
-    unsigned char reserved;
-    unsigned char attributes;
-    unsigned short offset_high;
+    uint16 offset_low;
+    uint16 segment_selector;
+    uint8 reserved;
+    uint8 attributes;
+    uint16 offset_high;
 } __attribute__((packed));
 
 /* This is loaded with interrupt_load_descriptor_table() */
 struct interrupt_descriptor_table {
     /* Length of the interrupt descriptor table in bytes - 1. */
-    unsigned short limit;
+    uint16 limit;
     /* Start address of the interrupt descriptor table. */
     struct interrupt_descriptor* base;
 } __attribute__((packed));
@@ -41,6 +41,8 @@ void interrupt_load_descriptor_table(struct interrupt_descriptor_table*);
 void interrupt_handler(const struct interrupt_stack*, uint32 irq);
 
 void interrupt_print_descriptor(struct printer*,
+        const struct interrupt_descriptor*);
+void interrupt_print_packed_descriptor(struct printer*,
         const struct interrupt_descriptor*);
 
 void interrupt_initialize(struct printer*);

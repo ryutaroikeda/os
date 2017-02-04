@@ -22,7 +22,7 @@ enum {
 static struct interrupt_descriptor idt[INTERRUPT_GATEWAY_SIZE];
 static struct interrupt_descriptor_table table_info;
 
-static unsigned char pack_attributes(
+static uint8 pack_attributes(
         enum gate_type type, int storage_segment,
         enum privilege_level level, int handler_present) {
     return (unsigned char) (
@@ -40,7 +40,19 @@ void interrupt_print_stack(struct printer* p,
     print(p, "eflags: %u\n", &stack->eflags);
 }
 
-void interrupt_print_descriptor(struct printer* printer,
+void interrupt_print_descriptor(struct printer* p,
+        const struct interrupt_descriptor* desc) {
+    uint32 offset = (uint32)((desc->offset_high << 16) | desc->offset_low);
+    print(p, "offset: %u\n", &offset);
+    uint32 segment_selector = desc->segment_selector;
+    print(p, "segment_selector: %u\n", &segment_selector);
+    uint32 reserved = desc->reserved;
+    print(p, "reserved: %l\n", &reserved);
+    uint32 handler_present = desc->attributes & (1 << 7);
+    print(p, "handler present: %l\n", &handler_present);
+}
+
+void interrupt_print_packed_descriptor(struct printer* printer,
         const struct interrupt_descriptor* desc) {
     const char* bytes = (const char*) desc;
     for (unsigned int i = 0; i < 4; i++) {
@@ -54,10 +66,10 @@ void interrupt_print_descriptor(struct printer* printer,
 }
 
 void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
-        unsigned int offset, unsigned short segment_selector,
+        uint32 offset, uint16 segment_selector,
         enum privilege_level privilege_level) {
-    descriptor->offset_low = (unsigned short) (offset & 0xffff);
-    descriptor->offset_high = (unsigned short) ((offset >> 16) & 0xffff);
+    descriptor->offset_low = (uint16) (offset & 0xffff);
+    descriptor->offset_high = (uint16) ((offset >> 16) & 0xffff);
     descriptor->segment_selector = segment_selector;
     descriptor->reserved = 0;
     descriptor->attributes =
@@ -77,15 +89,15 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
     if (INTERRUPT_GENERAL_PROTECTION == irq) {
         if (stack->error_code) {
             uint8 table = (stack->error_code >> 1) & 0x3;
-            if (0 == table) {
-                print(&p, "GDT index ");
-            } else if (table & 1) {
-                print(&p, "IDT index ");
-            } else if (2 == table) {
-                print(&p, "LDT index ");
-            }
             uint32 index = (stack->error_code >> 3) & 0x1fff;
-            print(&p, "%u\n", &index);
+            if (0 == table) {
+                print(&p, "GDT index %u\n", &index);
+            } else if (table & 1) {
+                print(&p, "IDT index %u\n", &index);
+                interrupt_print_descriptor(&p, &idt[index]);
+            } else if (2 == table) {
+                print(&p, "LDT index %u\n", &index);
+            }
         }
         panic(stack, irq, "general protection fault");
     }
