@@ -39,13 +39,14 @@ void interrupt_set_descriptor(struct interrupt_descriptor*,
 
 void interrupt_load_descriptor_table(struct interrupt_descriptor_table*);
 
-void interrupt_handler(const struct interrupt_segment_registers*,
-    const struct interrupt_stack*, uint32 irq);
+void interrupt_handler(const struct interrupt_stack*, uint32 irq);
 
 void interrupt_print_descriptor(struct printer*,
         const struct interrupt_descriptor*);
 void interrupt_print_packed_descriptor(struct printer*,
         const struct interrupt_descriptor*);
+void interrupt_print_segment_registers(struct printer*,
+        const struct interrupt_segment_registers*);
 
 void interrupt_initialize(struct printer*);
 void interrupt_enable(void);

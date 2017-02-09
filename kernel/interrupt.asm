@@ -153,18 +153,12 @@ interrupt 47
 interrupt 255
 
 ; The number of registers pushed by pushad
-REGISTER_NUM equ (8 + 5)
+REGISTER_NUM equ 8
 
 global common_interrupt_handler
 
 common_interrupt_handler:
     pushad
-
-	push ss
-	push ds
-	push es
-	push fs
-	push gs
 
     ; Make new call frame
     mov ebp, esp
@@ -180,20 +174,11 @@ common_interrupt_handler:
     add ebx, (REGISTER_NUM + 1) * 4
     push ebx
 
-	; Push pointer to segment registers
-	push ebp
-
     ; This is defined in kernel/interrupt.c
     call interrupt_handler
 
     ; Clear arguments
-    add esp, 3 * 4
-
-	pop gs
-	pop fs
-	pop es
-	pop ds
-	pop ss
+    add esp, 2 * 4
 
     popad
 

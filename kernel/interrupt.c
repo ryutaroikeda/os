@@ -90,7 +90,7 @@ void interrupt_print_packed_descriptor(struct printer* printer,
     print(printer, "\n");
 }
 
-static void interrupt_print_segment_registers(struct printer* p,
+void interrupt_print_segment_registers(struct printer* p,
         const struct interrupt_segment_registers* registers) {
     print(p, "ss: %u\n", &registers->ss);
     print(p, "ds: %u\n", &registers->ds);
@@ -110,8 +110,7 @@ void interrupt_set_descriptor(struct interrupt_descriptor* descriptor,
         pack_attributes(INTERRUPT_GATE_32, 0, privilege_level, 1);
 }
 
-void interrupt_handler(const struct interrupt_segment_registers* registers,
-        const struct interrupt_stack* stack, uint32 irq) {
+void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
     struct printer p;
     p.target = PRINT_FRAMEBUFFER;
 
@@ -135,7 +134,6 @@ void interrupt_handler(const struct interrupt_segment_registers* registers,
                 print(&p, "LDT index %u\n", &index);
             }
         }
-        interrupt_print_segment_registers(&p, registers);
         panic_with_stack("general protection fault", stack, irq);
     }
     if (INTERRUPT_TIMER == irq) {

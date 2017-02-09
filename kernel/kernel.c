@@ -45,7 +45,7 @@ void main(void) {
     interrupt_enable();
 
     //pic_unset_mask(PIC_MASTER_OFFSET);
-    //pic_unset_mask(PIC_MASTER_OFFSET + 0x1);
+    pic_unset_mask(PIC_MASTER_OFFSET + 0x1);
     //pic_unset_mask(PIC_MASTER_OFFSET + 0x2);
     //pic_unset_mask(PIC_SLAVE_OFFSET);
 
