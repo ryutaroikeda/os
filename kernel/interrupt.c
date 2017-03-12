@@ -1,3 +1,4 @@
+#include "drivers/keyboard.h"
 #include "drivers/pic.h"
 #include "interrupt.h"
 #include "gdt.h"
@@ -142,6 +143,7 @@ void interrupt_handler(const struct interrupt_stack* stack, uint32 irq) {
     }
     if (PIC_MASTER_OFFSET + 0x1 == irq) {
         print(&p, "keyboard\n");
+        keyboard_interrupt_handler(stack, irq);
         pic_acknowledge((uint8) irq);
         return;
     }

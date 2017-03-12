@@ -1,7 +1,7 @@
 #ifndef _pic_h_
 #define _pic_h_
 
-#include "kernel/integer.h"
+#include "lib/integer.h"
 
 enum pic_port {
     PIC_MASTER_PORT = 0x20,

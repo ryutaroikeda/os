@@ -12,16 +12,15 @@ enum {
     PRINT_BUFFER_SIZE = 1024
 };
 
+struct print_argument {
+    const void* value;
+};
+
 struct printer {
     enum printer_target target;
     struct serial_port port;
     char buffer[PRINT_BUFFER_SIZE];
     int buffer_offset;
-    int precision;
-};
-
-struct print_argument {
-    const void* value;
 };
 
 int print_n(struct printer*, const char* format, const struct print_argument*,

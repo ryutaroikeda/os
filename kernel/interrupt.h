@@ -1,7 +1,7 @@
 #ifndef _interrupt_h_
 #define _interrupt_h_
 
-#include "integer.h"
+#include "lib/integer.h"
 
 struct printer;
 struct interrupt_segment_registers;

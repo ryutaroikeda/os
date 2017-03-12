@@ -1,8 +1,8 @@
-#include "kernel/integer.h"
 #include "kernel/panic.h"
+#include "kernel/print.h"
+#include "lib/integer.h"
 #include "pic.h"
 #include "port.h"
-#include "kernel/print.h"
 
 /**
  * PIC stands for programmable interrupt controller.

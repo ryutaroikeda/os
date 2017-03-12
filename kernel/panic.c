@@ -23,4 +23,3 @@ void panic_with_stack(const char* message,
     }
 }
 
-

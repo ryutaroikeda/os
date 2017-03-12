@@ -1,7 +1,7 @@
 #ifndef _port_h_
 #define _port_h_
 
-#include "kernel/integer.h"
+#include "lib/integer.h"
 
 typedef unsigned short Port;
 

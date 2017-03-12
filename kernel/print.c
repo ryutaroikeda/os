@@ -1,6 +1,7 @@
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
-#include "integer.h"
+#include "lib/integer.h"
+#include "lib/queue.h"
 #include "null.h"
 #include "print.h"
 
@@ -25,6 +26,12 @@ enum {
 
 enum {
     MAX_STRING = 1024
+};
+
+struct print_command {
+    char* format;
+    struct print_argument* args;
+    uint16 arg_size;
 };
 
 static int print_to_device(struct printer* printer, const char* format,

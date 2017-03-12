@@ -1,7 +1,7 @@
 #ifndef _panic_h_
 #define _panic_h_
 
-#include "integer.h"
+#include "lib/integer.h"
 
 struct interrupt_stack;
 

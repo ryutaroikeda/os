@@ -1,10 +1,11 @@
 #include "drivers/framebuffer.h"
+#include "drivers/keyboard.h"
 #include "drivers/pic.h"
 #include "drivers/pit.h"
 #include "drivers/serial.h"
 #include "idle.h"
-#include "integer.h"
 #include "interrupt.h"
+#include "lib/integer.h"
 #include "print.h"
 
 void main(void);
@@ -37,6 +38,8 @@ void main(void) {
 
     // configure timer
     //pit_initialize();
+
+    keyboard_initialize(&keyboard_global, logger);
 
     print(logger, "initializing interrupt handlers\n");
     interrupt_initialize(logger);
