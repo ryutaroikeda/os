@@ -34,6 +34,11 @@ QUEUE_DEFINE(keyboard_command, 256);
 
 QUEUE_DEFINE(keyboard_scan_code, 256);
 
+enum keyboard_key_state {
+    KEY_UP
+    ,KEY_DOWN
+};
+
 /*
 static uint8 keyboard_get_scan_code(void) {
 }
@@ -72,6 +77,57 @@ void keyboard_send(struct keyboard* keyboard,
     keyboard_command_queue_enqueue(&keyboard->commands, command);
 }
 
+static void keyboard_handle_scan_code(struct keyboard* keyboard,
+        uint8 scan_code) {
+    return; // goes wrong when this is removed
+    enum keyboard_key_state key_state = KEY_DOWN;
+    if (0x80 <= scan_code) {
+        key_state = KEY_UP;
+        scan_code = (uint8) (scan_code - 0x80);
+    }
+    // Convert scan code into key code.
+    uint8 row;
+    uint8 column;
+    if (0xe0 == keyboard->scan_code_prefix) {
+        switch (scan_code) {
+            case 0x5b: // left command
+                row = 5;
+                column = 3;
+                break;
+            case 0x5c: // right command
+                row = 5;
+                column = 5;
+                break;
+            case 0x38: // right opt
+                row = 5;
+                column = 6;
+                break;
+            case 0x48: // up arrow
+                row = 5;
+                column = 7;
+                break;
+            case 0x4b: // left arrow
+                row = 6;
+                column = 0;
+                break;
+            case 0x50: // down arrow
+                row = 6;
+                column = 1;
+                break;
+            case 0x4d: // right arrow
+                row = 6;
+                column = 2;
+                break;
+            default:
+                // unrecognized scan code
+                return;
+        }
+    }
+    uint8 key_code = (uint8)((row << 5) + column);
+    keyboard->state[key_code] = key_state;
+    // @todo convert key code to code point
+}
+
 void keyboard_receive(struct keyboard* keyboard) {
     uint8 response = keyboard_byte_in();
     switch (response) {
@@ -93,10 +149,17 @@ void keyboard_receive(struct keyboard* keyboard) {
         case ACKNOWLEDGED:
             keyboard_command_queue_dequeue(&keyboard->commands);
             break;
+        case 0xe0:
+            keyboard->scan_code_prefix = 0xe0;
+            break;
         default:
-
+            print(keyboard->printer, "scan code: %b\n", &response);
+            keyboard_handle_scan_code(keyboard, response);
+            /*
             keyboard_scan_code_queue_enqueue(&keyboard->scan_codes,
                     (struct keyboard_scan_code) { .byte = response });
+                    */
+            keyboard->scan_code_prefix = 0x0;
             break;
     }
 }

@@ -54,7 +54,7 @@ clean:
 	@rm -f *.bin *.dis *.img *.dump $(OBJ) $(ASM_OBJ)
 
 tags:
-	ctags -R kernel/ drivers/
+	ctags -R kernel/ drivers/ lib/
 
 .PHONY: boot
 .PHONY: clean

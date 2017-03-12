@@ -33,8 +33,9 @@ QUEUE_DECLARE(keyboard_scan_code, 256);
 
 struct keyboard {
     struct keyboard_command_queue commands;
-    struct keyboard_scan_code_queue scan_codes;
+    uint8 scan_code_prefix;
     struct printer* printer;
+    uint8 state[256];
 };
 
 extern struct keyboard keyboard_global;
