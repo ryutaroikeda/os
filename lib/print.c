@@ -2,7 +2,7 @@
 #include "drivers/serial.h"
 #include "lib/integer.h"
 #include "lib/queue.h"
-#include "null.h"
+#include "lib/null.h"
 #include "print.h"
 
 const struct serial_line_configuration

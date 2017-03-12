@@ -1,6 +1,6 @@
 #include "kernel/panic.h"
-#include "kernel/print.h"
 #include "lib/integer.h"
+#include "lib/print.h"
 #include "pic.h"
 #include "port.h"
 

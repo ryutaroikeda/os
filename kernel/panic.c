@@ -1,7 +1,7 @@
 #include "idle.h"
 #include "interrupt.h"
 #include "panic.h"
-#include "print.h"
+#include "lib/print.h"
 
 void panic(const char* message) {
     struct printer p;

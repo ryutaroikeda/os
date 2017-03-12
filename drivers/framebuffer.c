@@ -1,5 +1,5 @@
 #include "framebuffer.h"
-#include "kernel/memory.h"
+#include "lib/memory.h"
 #include "port.h"
 
 enum {

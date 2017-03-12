@@ -13,8 +13,9 @@ enum {
 };
 
 enum keyboard_command_byte {
-    ENABLE_SCAN_CODE = 0xf4,
-    SCAN_CODE = 0xf0
+    ENABLE_SCAN_CODE = 0xf4
+    ,GET_SCAN_CODE_SET = 0xf0
+    ,SET_SCAN_CODE_SET = 0xf0
 };
 
 struct keyboard_command {

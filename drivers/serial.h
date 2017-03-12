@@ -1,7 +1,7 @@
 #ifndef _serial_h_
 #define _serial_h_
 
-#include "kernel/bool.h"
+#include "lib/bool.h"
 #include "port.h"
 
 enum {

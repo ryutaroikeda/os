@@ -1,10 +1,10 @@
-#include "kernel/bool.h"
-#include "lib/integer.h"
-#include "lib/queue.h"
 #include "kernel/panic.h"
-#include "kernel/print.h"
-#include "kernel/memory.h"
 #include "keyboard.h"
+#include "lib/bool.h"
+#include "lib/integer.h"
+#include "lib/memory.h"
+#include "lib/print.h"
+#include "lib/queue.h"
 #include "port.h"
 
 enum keyboard_response {
@@ -40,7 +40,7 @@ static uint8 keyboard_get_scan_code(void) {
 */
 
 static bool keyboard_has_data_byte(enum keyboard_command_byte command) {
-    return (SCAN_CODE == command);
+    return (GET_SCAN_CODE_SET == command);
 }
 
 static void keyboard_byte_out(uint8 byte) {
@@ -94,8 +94,10 @@ void keyboard_receive(struct keyboard* keyboard) {
             keyboard_command_queue_dequeue(&keyboard->commands);
             break;
         default:
-            // @todo get scan code
-            return;
+
+            keyboard_scan_code_queue_enqueue(&keyboard->scan_codes,
+                    (struct keyboard_scan_code) { .byte = response });
+            break;
     }
 }
 
@@ -105,6 +107,8 @@ void keyboard_initialize(struct keyboard* keyboard,
     keyboard->printer = printer;
     keyboard_send(keyboard, (struct keyboard_command)
             { ENABLE_SCAN_CODE, DATA_BYTE_NONE });
+    keyboard_send(keyboard, (struct keyboard_command)
+            { SET_SCAN_CODE_SET, 2 });
 }
 
 void keyboard_interrupt_handler(const struct interrupt_stack* stack,

@@ -6,7 +6,7 @@
 #include "idle.h"
 #include "interrupt.h"
 #include "lib/integer.h"
-#include "print.h"
+#include "lib/print.h"
 
 void main(void);
 

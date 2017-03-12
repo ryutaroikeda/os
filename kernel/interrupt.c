@@ -2,9 +2,9 @@
 #include "drivers/pic.h"
 #include "interrupt.h"
 #include "gdt.h"
-#include "memory.h"
+#include "lib/memory.h"
+#include "lib/print.h"
 #include "panic.h"
-#include "print.h"
 
 enum {
     INTERRUPT_DIVIDE_BY_ZERO = 0x0,

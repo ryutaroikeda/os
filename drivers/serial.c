@@ -1,4 +1,4 @@
-#include "kernel/bool.h"
+#include "lib/bool.h"
 #include "port.h"
 #include "serial.h"
 
