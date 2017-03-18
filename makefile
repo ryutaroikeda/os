@@ -6,7 +6,8 @@ CFLAGS=-Wextra -Wall -pedantic -Werror -Wshadow \
 	   -fno-builtin \
 	   -I . \
 	   -O0 \
-	   -std=c99
+	   -std=c99 \
+	   -g
 
 C_SOURCES = $(wildcard kernel/*.c drivers/*.c lib/*.c)
 ASM_SOURCES = $(wildcard kernel/*.asm drivers/*.asm)

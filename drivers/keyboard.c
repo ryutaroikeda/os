@@ -79,12 +79,12 @@ void keyboard_send(struct keyboard* keyboard,
 
 static void keyboard_handle_scan_code(struct keyboard* keyboard,
         uint8 scan_code) {
-    return; // goes wrong when this is removed
     enum keyboard_key_state key_state = KEY_DOWN;
     if (0x80 <= scan_code) {
         key_state = KEY_UP;
         scan_code = (uint8) (scan_code - 0x80);
     }
+    panic("testing");
     // Convert scan code into key code.
     uint8 row;
     uint8 column;
@@ -155,10 +155,6 @@ void keyboard_receive(struct keyboard* keyboard) {
         default:
             print(keyboard->printer, "scan code: %b\n", &response);
             keyboard_handle_scan_code(keyboard, response);
-            /*
-            keyboard_scan_code_queue_enqueue(&keyboard->scan_codes,
-                    (struct keyboard_scan_code) { .byte = response });
-                    */
             keyboard->scan_code_prefix = 0x0;
             break;
     }

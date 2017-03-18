@@ -6,10 +6,22 @@
 #include "print.h"
 
 const struct serial_line_configuration
-LINE_CONFIG = { 1, 0x3, 0, 0, 0 };
+LINE_CONFIG = {
+    .baud_rate_divisor = 3,
+    .character_length = 0x3,
+    .stop_bits_length = 0,
+    .parity = 0,
+    .interrupt_enable = 0
+};
 
 const struct serial_buffer_configuration
-BUFFER_CONFIG = { 3, 0, 1, 1, 1 };
+BUFFER_CONFIG = {
+    .buffer_size = 3,
+    .enable_64_byte_fifo = 0,
+    .clear_transmit_fifo = 1,
+    .clear_receive_fifo = 1,
+    .enable_fifo = 1
+};
 
 enum {
     FORMAT_PERCENT = '%',

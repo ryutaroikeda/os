@@ -5,8 +5,16 @@
 
 void panic(const char* message) {
     struct printer p;
-    p.target = PRINT_FRAMEBUFFER;
+    p.target = PRINT_SERIAL_COM_1;
+    p.port = (struct serial_port) { SERIAL_COM_1_BASE, false };
     print(&p, "%s\n", message);
+    while (1) {
+        idle();
+    }
+}
+
+void panic_with_printer(struct printer* printer, const char* message) {
+    print(printer, "%s\n", message);
     while (1) {
         idle();
     }

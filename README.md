@@ -9,3 +9,12 @@ http://wiki.osdev.org/Main_Page
 * `drivers` has hardware specific driver code
 * `kernel` has everything else
 
+## Debugging
+
+`qemu-system-i386 -s -S`
+
+`gdb` then
+
+```
+symbol-file kernel/kernel.o
+```

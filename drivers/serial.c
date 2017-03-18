@@ -38,9 +38,14 @@ static void configure_baud_rate(struct serial_port port,
     port_byte_out(LINE_CONTROL_REGISTER(port.port), LINE_ENABLE_DLAB);
     port_byte_out(BAUD_LOW_REGISTER(port.port), low);
     port_byte_out(BAUD_HIGH_REGISTER(port.port), high);
+    // clear dlab
     port_byte_out(LINE_CONTROL_REGISTER(port.port), 0x00);
 }
 
+/**
+ * Configure the line control register.
+ * Unset the DLAB and break bits.
+ */
 static unsigned char pack_line_configuration(
         struct serial_line_configuration config) {
     return (unsigned char) (
@@ -72,19 +77,36 @@ void serial_configure_buffer(struct serial_port port,
             pack_buffer_configuration(config));
 }
 
+void serial_initialize(struct serial_port port,
+        struct serial_line_configuration line_config,
+        struct serial_buffer_configuration buffer_config) {
+    // Unset DLAB flag
+    port_byte_out(LINE_CONTROL_REGISTER(port.port), 0x0);
+    // Disable all interrupts
+    port_byte_out(INTERRUPT_ENABLE_REGISTER(port.port), 0);
+    // Set DLAB flag
+    port_byte_out(LINE_CONTROL_REGISTER(port.port), 0x80);
+    // Set baud rate lo byte
+    port_byte_out(BAUD_LOW_REGISTER(port.port),
+            (uint8)(line_config.baud_rate_divisor & 0xff));
+    // Set baud rate hi byte
+    port_byte_out(BAUD_HIGH_REGISTER(port.port),
+            (uint8)((line_config.baud_rate_divisor >> 8) & 0xff));
+    port_byte_out(LINE_CONTROL_REGISTER(port.port),
+            pack_line_configuration(line_config));
+    port_byte_out(FIFO_CONTROL_REGISTER(port.port),
+            pack_buffer_configuration(buffer_config));
+}
+
 static bool transmission_buffer_is_empty(Port port) {
     /** The transmission buffer is empty if bit 5 of the line status register
      * is set. */
-    unsigned char status = port_byte_in(LINE_STATUS_REGISTER(port));
-    return status & (1 << 5);
+    return port_byte_in(LINE_STATUS_REGISTER(port)) & (1 << 5);
 }
 
 void serial_write(struct serial_port port, const char* s, int len) {
-    while (true) {
-        if (transmission_buffer_is_empty(port.port)) { break; }
-    }
     for (int i = 0; i < len; i++) {
-        if (!s[i]) { break; }
+        while (! transmission_buffer_is_empty(port.port)) {}
         port_byte_out(DATA_REGISTER(port.port), (unsigned char) s[i]);
     }
 }
